@@ -90,6 +90,15 @@
   .char-name-wrap { display: flex; flex-direction: column; cursor: pointer; flex: 1; }
   .char-name { font-size: 15px; }
   .char-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .char-name-wrap { flex-direction: row !important; align-items: center; gap: 10px; }
+  .char-text { display: flex; flex-direction: column; }
+  .avatar {
+    position: relative; width: 40px; height: 40px; border-radius: 50%; overflow: hidden;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background: var(--panel-2); border: 1px solid var(--border);
+  }
+  .avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+  .avatar .mono { font-size: 17px; font-weight: bold; }
   .char-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
   .euphoria-star { cursor: pointer; font-size: 16px; color: #4a4236; user-select: none; }
   .euphoria-star.on { color: var(--gold); text-shadow: 0 0 6px rgba(201,162,75,.6); }
@@ -116,8 +125,15 @@
   .psychube-block > .pb-title {
     font-size: 10px; letter-spacing: .8px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;
   }
-  .pb-item { font-size: 12px; padding: 3px 0; display: flex; gap: 6px; align-items: baseline; }
-  .pb-rank { color: var(--gold-dim); font-size: 11px; min-width: 14px; }
+  .pb-item { font-size: 12px; padding: 3px 0; display: flex; gap: 7px; align-items: center; }
+  .pb-rank { color: var(--gold-dim); font-size: 11px; min-width: 14px; align-self: flex-start; padding-top: 4px; }
+  .pb-icon {
+    position: relative; width: 26px; height: 26px; border-radius: 5px; overflow: hidden; flex-shrink: 0;
+    background: var(--panel-2); border: 1px solid var(--border);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .pb-icon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .pb-icon.missing::after { content: '\25C6'; color: var(--text-dim); font-size: 11px; }
   .pb-body { flex: 1; }
   .pb-name { color: var(--text); }
   .pb-reason { color: var(--text-dim); font-size: 11px; }
@@ -158,7 +174,7 @@
   .slot-list li { font-size: 13px; padding: 5px 0; border-top: 1px solid #2a241d; display: flex; justify-content: space-between; gap: 8px; }
   .slot-list li:first-child { border-top: none; }
   .slot-label { color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; min-width: 70px; }
-  .slot-value { text-align: right; flex: 1; }
+  .slot-value { text-align: right; flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
   .slot-value .ok { color: var(--text); }
   .slot-value .euph-tag { color: var(--gold); font-size: 11px; margin-left: 4px; }
   .slot-value .bad { color: var(--red); }
@@ -274,8 +290,8 @@ const defaultCharacters = [
   ] },
   { id: 'toothfairy', name: 'Tooth Fairy', owned: true, euphoria: true, note: 'AP-efficient sustain/CC', afflatus: 'Star', role: 'Sustain', specialty: 'Healer / Crit-Support', insight: '', psychubes: [
     { n: 'Beyond Wonderland', r: 'Signature — HP + Healing Bonus + Crit Rate keeps her cleanse-on-crit reliable', s: 'sig' },
-    { n: 'Dawn is Coming', r: 'Extra healing throughput option', s: 'event' },
-    { n: 'Her Wish', r: 'Generic HP/heal budget staple', s: 'shop' },
+    { n: 'Dawn Is Coming', r: 'Extra healing throughput option', s: 'event' },
+    { n: 'Laughter and Laughter', r: 'Budget 5★ heal staple', s: 'shop' },
   ] },
   { id: 'ramona', name: 'Ramona', owned: true, euphoria: true, note: 'Poison main carry', afflatus: 'Plant', role: 'DPS', specialty: 'Poison DPS', insight: '', psychubes: [
     { n: 'Falling for a Sweet Phenomenon', r: 'BiS — stacks Genesis DMG fast off her frequent Extra Actions', s: 'shop' },
@@ -305,7 +321,6 @@ const defaultCharacters = [
   { id: 'marsha', name: 'Marsha', owned: true, euphoria: true, note: 'Sustain/tank', afflatus: 'Beast', role: 'Sustain', specialty: 'Shield/Sustain', insight: '', psychubes: [
     { n: 'Singleness of Heart', r: 'Signature — DMG reduction + team Crit DMG when Lingering Glow is high', s: 'sig' },
     { n: 'Beyond Wonderland', r: 'HP + Crit Rate support alternative', s: 'sig' },
-    { n: "The Fool's Fortune", r: 'Generic defensive/HP staple', s: 'shop' },
   ] },
   { id: 'kiperina', name: 'Kiperina', owned: true, euphoria: true, note: 'Mental dmg + shields', afflatus: 'Star', role: 'Sustain', specialty: 'Shield/Support (Eureka)', insight: '', psychubes: [
     { n: 'Aurora After Winter', r: 'Signature — stacking ATK on cast + party Crit Rate off Eureka consumption', s: 'sig' },
@@ -314,7 +329,7 @@ const defaultCharacters = [
   ] },
   { id: 'fatutu', name: 'Fatutu', owned: true, euphoria: true, note: 'Sustain via FUA heals', afflatus: 'Mineral', role: 'Sustain', specialty: 'Healer', insight: '', psychubes: [
     { n: 'Cracks in the Shell', r: 'Signature BiS — Healing Bonus + party Crit DMG buff', s: 'sig' },
-    { n: 'Wandering Improviser', r: 'Healing Bonus + HP; her dmg-sharing stacks allied Ult Might', s: 'event' },
+    { n: 'The Wandering Improviser', r: 'Healing Bonus + HP; her dmg-sharing stacks allied Ult Might', s: 'event' },
     { n: 'That Inquisitive Dear', r: '6★ heal psychube, reliable substitute', s: 'sig' },
   ] },
   { id: 'barcarola', name: 'Barcarola', owned: true, euphoria: true, note: 'Eureka sub-DPS/buffer', afflatus: 'Star', role: 'Sub-DPS', specialty: 'Mental DMG DPS (Eureka)', insight: '', psychubes: [
@@ -334,7 +349,7 @@ const defaultCharacters = [
   ] },
   { id: 'tuesday', name: 'Tuesday', owned: true, euphoria: true, note: 'Poison array core', afflatus: 'Spirit', role: 'Support', specialty: 'Poison DPS/Support', insight: '', psychubes: [
     { n: 'And the Maid Says', r: 'Signature — +Poison DMG for all allies plus extra for Tuesday', s: 'sig' },
-    { n: 'Never-ending Q&A', r: 'ATK + Crit DMG (her Poison can crit)', s: 'event' },
+    { n: 'Never-Ending Q&A', r: 'ATK + Crit DMG (her Poison can crit)', s: 'event' },
     { n: 'Blasphemer of Night', r: 'Budget Neg-Status option', s: 'shop' },
   ] },
   { id: 'semmelweis', name: 'Semmelweis', owned: true, euphoria: true, note: 'HP-drain buffer', afflatus: 'Mineral', role: 'Support', specialty: 'Support/Buffer (HP-drain)', insight: '', psychubes: [
@@ -457,9 +472,9 @@ function migrateReferenceData(s) {
     if (!cur.afflatus && def.afflatus) cur.afflatus = def.afflatus;
     if (!cur.role && def.role) cur.role = def.role;
     if (!cur.specialty && def.specialty) cur.specialty = def.specialty;
-    if ((!cur.psychubes || cur.psychubes.length === 0) && def.psychubes) {
-      cur.psychubes = JSON.parse(JSON.stringify(def.psychubes));
-    }
+    // Psychubes are pure reference data (no in-app editing), so always resync from defaults
+    // to pick up name/image corrections. Custom characters (not in defaults) keep their own.
+    if (def.psychubes) cur.psychubes = JSON.parse(JSON.stringify(def.psychubes));
   });
   return s;
 }
@@ -482,6 +497,24 @@ function getChar(id) { return state.characters.find(c => c.id === id); }
 function slugify(name) { return name.toLowerCase().replace(/[^a-z0-9]+/g, ''); }
 function esc(str) { return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
 const SRC_LABEL = { sig: 'Sig', shop: 'Shop', event: 'Event' };
+
+// Image helpers. Files live in images/characters/<id>.png and images/psychubes/<slug>.png,
+// committed to the repo. onerror removes the <img> so the CSS monogram/fallback shows through.
+function pbSlug(n) { return (n || '').toLowerCase().replace(/['&]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+function avatarHtml(c, size) {
+  const afClass = c.afflatus ? 'af-' + c.afflatus : 'af-none';
+  const mono = (c.name || '?').trim().charAt(0).toUpperCase();
+  const style = size ? ` style="width:${size}px;height:${size}px"` : '';
+  return `<span class="avatar ${afClass}"${style}>
+    <span class="mono">${esc(mono)}</span>
+    <img src="images/characters/${c.id}.png" alt="" loading="lazy" onerror="this.remove()">
+  </span>`;
+}
+function pbIconHtml(name) {
+  return `<span class="pb-icon">
+    <img src="images/psychubes/${pbSlug(name)}.png" alt="" loading="lazy" onerror="this.parentNode.classList.add('missing');this.remove()">
+  </span>`;
+}
 
 function populateFilterSelects() {
   const af = document.getElementById('afflatusFilter');
@@ -530,6 +563,7 @@ function renderRoster() {
            ${c.psychubes.map((p, i) => `
              <div class="pb-item">
                <span class="pb-rank">${i + 1}.</span>
+               ${pbIconHtml(p.n)}
                <span class="pb-body"><span class="pb-name">${esc(p.n)}</span> <span class="pb-reason">— ${esc(p.r)}</span></span>
                <span class="src-tag ${p.s}" title="acquisition">${SRC_LABEL[p.s] || ''}</span>
              </div>`).join('')}
@@ -539,8 +573,11 @@ function renderRoster() {
     card.innerHTML = `
       <div class="card-top">
         <div class="char-name-wrap" data-toggle="${c.id}" title="Toggle owned">
-          <div class="char-name">${esc(c.name)}</div>
-          <div class="char-meta">${esc(c.note) || (c.owned ? 'owned' : 'not owned')}</div>
+          ${avatarHtml(c)}
+          <div class="char-text">
+            <div class="char-name">${esc(c.name)}</div>
+            <div class="char-meta">${esc(c.note) || (c.owned ? 'owned' : 'not owned')}</div>
+          </div>
         </div>
         <div class="char-actions">
           <span class="euphoria-star ${c.euphoria ? 'on' : ''}" data-euph="${c.id}" title="Toggle Euphoria unlocked">&#9733;</span>
@@ -702,7 +739,7 @@ function renderTeams() {
         const euphNote = (slot.note && slot.note.toLowerCase().includes('euphoria'))
           ? (ev.chosen.euphoria ? `<span class="euph-tag">&#9733; Euphoria</span>` : `<span class="euph-tag" style="color:var(--amber)">wants Euphoria</span>`)
           : (ev.chosen.euphoria ? `<span class="euph-tag">&#9733;</span>` : '');
-        valueHtml = `<span class="ok">${esc(ev.chosen.name)}</span>${euphNote}`;
+        valueHtml = `${avatarHtml(ev.chosen, 22)}<span class="ok">${esc(ev.chosen.name)}</span>${euphNote}`;
       } else {
         const names = slot.options.map(id => getChar(id)?.name || id).join(' / ');
         valueHtml = `<span class="bad">missing: ${esc(names)}</span>`;
