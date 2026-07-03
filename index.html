@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reverse: 1999 — Team Planner</title>
+<style>
+  :root {
+    --bg: #14110f;
+    --panel: #1e1a16;
+    --panel-2: #262019;
+    --border: #3a3128;
+    --gold: #c9a24b;
+    --gold-dim: #8a733a;
+    --text: #e9e1d3;
+    --text-dim: #a89d8a;
+    --green: #5c9c6a;
+    --amber: #c98f3a;
+    --red: #9c5c5c;
+    --blue: #6a8ab0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    background: radial-gradient(ellipse at top, #241f1a 0%, var(--bg) 60%);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    padding: 28px 24px 14px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; color: var(--gold); font-weight: normal; }
+  header p { margin: 6px 0 0; color: var(--text-dim); font-size: 13px; letter-spacing: 1px; }
+  .tabs { display: flex; justify-content: center; gap: 6px; margin-top: 16px; }
+  .tab-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+    padding: 8px 20px; font-family: inherit; font-size: 13px; letter-spacing: 1px;
+    cursor: pointer; border-radius: 3px 3px 0 0;
+  }
+  .tab-btn.active { color: var(--gold); border-color: var(--gold-dim); background: var(--panel); }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  input[type=text], select, textarea {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    padding: 7px 10px; font-family: inherit; border-radius: 3px; font-size: 13px;
+  }
+
+  .roster-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+  .roster-toolbar .spacer { flex: 1; }
+  button.gbtn {
+    background: var(--panel-2); border: 1px solid var(--gold-dim); color: var(--gold);
+    padding: 7px 14px; font-family: inherit; font-size: 13px; cursor: pointer; border-radius: 3px;
+  }
+  button.gbtn:hover { background: #332a1f; }
+  button.gbtn.subtle { border-color: var(--border); color: var(--text-dim); }
+  .stat-line { color: var(--text-dim); font-size: 13px; }
+
+  /* Info banner */
+  .info-banner {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 5px;
+    padding: 12px 16px; margin-bottom: 18px; font-size: 12.5px; color: var(--text-dim); line-height: 1.6;
+  }
+  .info-banner summary { cursor: pointer; color: var(--gold); font-size: 12px; letter-spacing: .5px; text-transform: uppercase; }
+  .info-banner .body { margin-top: 10px; }
+  .info-banner b { color: var(--text); }
+  .src-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+  .src-legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+  .src-tag {
+    font-size: 9.5px; letter-spacing: .5px; text-transform: uppercase;
+    padding: 1px 6px; border-radius: 8px; white-space: nowrap;
+  }
+  .src-tag.sig { background: rgba(201,143,58,.18); color: var(--amber); }
+  .src-tag.shop { background: rgba(92,156,106,.18); color: var(--green); }
+  .src-tag.event { background: rgba(106,138,176,.18); color: var(--blue); }
+
+  .roster-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
+  .char-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+    padding: 12px; display: flex; flex-direction: column; gap: 8px;
+    opacity: 0.5; transition: opacity .15s, border-color .15s;
+  }
+  .char-card.owned { opacity: 1; border-color: var(--gold-dim); }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .char-name-wrap { display: flex; flex-direction: column; cursor: pointer; flex: 1; }
+  .char-name { font-size: 15px; }
+  .char-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .char-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+  .euphoria-star { cursor: pointer; font-size: 16px; color: #4a4236; user-select: none; }
+  .euphoria-star.on { color: var(--gold); text-shadow: 0 0 6px rgba(201,162,75,.6); }
+  .char-card:not(.owned) .euphoria-star { pointer-events: none; opacity: 0.25; }
+  .remove-x { cursor: pointer; color: var(--text-dim); font-size: 13px; }
+  .remove-x:hover { color: var(--red); }
+
+  .badge-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .afflatus-badge, .specialty-badge {
+    font-size: 11px; padding: 2px 9px; border-radius: 10px; letter-spacing: .3px;
+  }
+  .afflatus-badge { border: 1px solid var(--border); }
+  .af-Beast { color: #c98f6a; border-color: #6a4a3a; }
+  .af-Intellect { color: #b57ac0; border-color: #5a3a60; }
+  .af-Mineral { color: #c9b24b; border-color: #6a5f2a; }
+  .af-Plant { color: #7ac07a; border-color: #3a603a; }
+  .af-Spirit { color: #7ab0c0; border-color: #3a5560; }
+  .af-Star { color: #8a9ad0; border-color: #3a4570; }
+  .af-none { color: var(--text-dim); }
+  .specialty-badge { background: rgba(201,162,75,.10); color: var(--gold); border: 1px solid var(--gold-dim); }
+  .specialty-badge.empty { background: none; color: var(--text-dim); border-color: var(--border); }
+
+  .psychube-block { border-top: 1px solid #2a241d; padding-top: 8px; }
+  .psychube-block > .pb-title {
+    font-size: 10px; letter-spacing: .8px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;
+  }
+  .pb-item { font-size: 12px; padding: 3px 0; display: flex; gap: 6px; align-items: baseline; }
+  .pb-rank { color: var(--gold-dim); font-size: 11px; min-width: 14px; }
+  .pb-body { flex: 1; }
+  .pb-name { color: var(--text); }
+  .pb-reason { color: var(--text-dim); font-size: 11px; }
+  .pb-item .src-tag { flex-shrink: 0; align-self: center; }
+
+  .edit-toggle { font-size: 11px; color: var(--text-dim); cursor: pointer; border-top: 1px solid #2a241d; padding-top: 7px; user-select: none; }
+  .edit-toggle:hover { color: var(--gold); }
+  .edit-area { display: none; flex-direction: column; gap: 6px; }
+  .edit-area.open { display: flex; }
+  .edit-area .tag-row { display: flex; gap: 6px; }
+  .edit-area .tag-row select { flex: 1; padding: 3px 5px; font-size: 11px; color: var(--text-dim); background: var(--bg); }
+  .edit-area input[type=text] { width: 100%; padding: 4px 7px; font-size: 11px; background: var(--bg); }
+
+  /* Teams */
+  .wishlist-panel { background: var(--panel-2); border: 1px solid var(--gold-dim); border-radius: 5px; padding: 14px 16px; margin-bottom: 20px; }
+  .wishlist-panel h4 { margin: 0 0 8px; color: var(--gold); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-weight: normal; }
+  .wishlist-item { font-size: 13px; padding: 5px 0; border-top: 1px solid #2a241d; }
+  .wishlist-item:first-child { border-top: none; }
+  .wishlist-item b { color: var(--text); }
+  .wishlist-item .need { color: var(--amber); }
+  details.further-off { margin-top: 10px; }
+  details.further-off summary { cursor: pointer; color: var(--text-dim); font-size: 12px; }
+  .empty-msg { color: var(--text-dim); font-size: 12px; font-style: italic; }
+
+  .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .team-card { background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 16px; }
+  .team-card.ready { border-color: var(--green); }
+  .team-card.partial { border-color: var(--amber); }
+  .team-card.missing { border-color: var(--red); opacity: 0.85; }
+  .team-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .team-head h3 { margin: 0; font-size: 17px; color: var(--gold); font-weight: normal; }
+  .badge { font-size: 10px; letter-spacing: 1px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; }
+  .badge.ready { background: rgba(92,156,106,.2); color: var(--green); }
+  .badge.partial { background: rgba(201,143,58,.2); color: var(--amber); }
+  .badge.missing { background: rgba(156,92,92,.2); color: var(--red); }
+  .team-desc { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.5; }
+  .slot-list { list-style: none; margin: 0; padding: 0; }
+  .slot-list li { font-size: 13px; padding: 5px 0; border-top: 1px solid #2a241d; display: flex; justify-content: space-between; gap: 8px; }
+  .slot-list li:first-child { border-top: none; }
+  .slot-label { color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; min-width: 70px; }
+  .slot-value { text-align: right; flex: 1; }
+  .slot-value .ok { color: var(--text); }
+  .slot-value .euph-tag { color: var(--gold); font-size: 11px; margin-left: 4px; }
+  .slot-value .bad { color: var(--red); }
+  .team-rotation { font-size: 12px; color: var(--text-dim); margin-top: 10px; padding-top: 9px; border-top: 1px dashed #2a241d; line-height: 1.5; }
+  .team-rotation b { color: var(--gold-dim); }
+  .team-remove { margin-top: 10px; text-align: right; }
+  .team-remove span { cursor: pointer; color: var(--text-dim); font-size: 11px; }
+  .team-remove span:hover { color: var(--red); }
+
+  .add-panel { background: var(--panel-2); border: 1px dashed var(--border); border-radius: 5px; padding: 16px; margin-top: 24px; }
+  .add-panel h4 { margin: 0 0 12px; color: var(--text-dim); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-weight: normal; }
+  .add-panel input, .add-panel textarea { width: 100%; margin-bottom: 8px; }
+  .add-panel textarea { resize: vertical; min-height: 40px; }
+  .hint { color: var(--text-dim); font-size: 11px; margin: -4px 0 10px; }
+  .builder-slot { border: 1px solid var(--border); border-radius: 4px; padding: 10px; margin-bottom: 10px; background: var(--bg); }
+  .builder-slot-head { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .builder-slot-head input[type=text] { flex: 1; margin-bottom: 0; }
+  .builder-slot-head .remove-slot { cursor: pointer; color: var(--text-dim); font-size: 11px; white-space: nowrap; }
+  .builder-slot-head .remove-slot:hover { color: var(--red); }
+  .chip-picker { display: flex; flex-wrap: wrap; gap: 5px; max-height: 110px; overflow-y: auto; padding: 4px 2px; }
+  .chip { border: 1px solid var(--border); border-radius: 12px; padding: 3px 10px; font-size: 11px; cursor: pointer; color: var(--text-dim); background: var(--panel); user-select: none; }
+  .chip.selected { border-color: var(--gold); color: var(--gold); background: rgba(201,162,75,.12); }
+  .chip.not-owned { opacity: .55; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Reverse : 1999</h1>
+  <p>TEAM PLANNER — track your roster, see which comps are ready</p>
+  <div class="tabs">
+    <button class="tab-btn active" data-view="roster">My Roster</button>
+    <button class="tab-btn" data-view="teams">Team Comps</button>
+  </div>
+</header>
+
+<main>
+  <section id="view-roster" class="view active">
+    <details class="info-banner">
+      <summary>How to get psychubes</summary>
+      <div class="body">
+        Reverse: 1999 has <b>no psychube gacha</b> — every psychube comes from farming, shops, or events. The three sources you'll see tagged on each card:
+        <div class="src-legend">
+          <span><span class="src-tag shop">Shop</span> Standard 5★ — buy anytime in the <b>Fragment Shop</b> with Thought Element / Thoughts in Entirety farmed from <b>Pneuma Analysis</b> stages.</span>
+          <span><span class="src-tag sig">Sig</span> The character's <b>signature</b> — debuts in that character's event shop (limited), later reappears in reruns / the permanent psychube pool. The hardest to get.</span>
+          <span><span class="src-tag event">Event</span> A limited 6★ from a <b>past event shop or the Roar Jukebox battle pass</b> — watch for reruns.</span>
+        </div>
+        <div style="margin-top:8px">Upgrade with <b>Engraving</b> (levels, from dupes/mats) and <b>Amplify</b> 1→5 (needs duplicates; 5★/6★ only). Availability rotates — verify the live in-game shops.</div>
+      </div>
+    </details>
+
+    <div class="roster-toolbar">
+      <input type="text" id="rosterSearch" placeholder="Search name, specialty, or psychube...">
+      <select id="afflatusFilter"></select>
+      <select id="roleFilter"></select>
+      <span class="spacer"></span>
+      <span class="stat-line" id="rosterStat"></span>
+      <button class="gbtn subtle" id="exportBtn">Export</button>
+      <button class="gbtn subtle" id="importBtn">Import</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none">
+    </div>
+    <div class="roster-toolbar">
+      <input type="text" id="newCharInput" placeholder="Add a character (e.g. Regulus)">
+      <button class="gbtn" id="addCharBtn">Add</button>
+    </div>
+    <div class="roster-grid" id="rosterGrid"></div>
+  </section>
+
+  <section id="view-teams" class="view">
+    <div class="wishlist-panel">
+      <h4>Wishlist — who to pull next</h4>
+      <div id="wishlistContent"></div>
+    </div>
+    <div class="team-grid" id="teamGrid"></div>
+    <div class="add-panel">
+      <h4>Build a new team</h4>
+      <input type="text" id="builderName" placeholder="Team name">
+      <textarea id="builderDesc" placeholder="Synergy — why does this team work? (optional)"></textarea>
+      <textarea id="builderRotation" placeholder="Rotation notes — AP cycle, turn order, etc. (optional)"></textarea>
+      <div id="builderSlots"></div>
+      <div class="hint">Click character chips to add them to a slot. Multiple selected chips in one slot = interchangeable flex options.</div>
+      <button class="gbtn subtle" id="addSlotBtn">+ Add Slot</button>
+      <button class="gbtn" id="saveTeamBtn" style="margin-left:8px">Save Team</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const STORAGE_KEY = 'r1999-team-planner-v1';
+const AFFLATUS_LIST = ['Beast', 'Intellect', 'Mineral', 'Plant', 'Spirit', 'Star'];
+const ROLE_LIST = ['DPS', 'Sub-DPS', 'Support', 'Sustain'];
+
+// psychube entry: { n: name, r: reason, s: source-tag ('sig'|'shop'|'event') }
+const defaultCharacters = [
+  { id: 'jessica', name: 'Jessica', owned: true, euphoria: true, note: 'Poison sub-DPS/support', afflatus: 'Plant', role: 'Sub-DPS', specialty: 'Poison DPS', insight: '', psychubes: [
+    { n: 'Blasphemer of Night', r: 'Her original BiS; applies easily since Poison is a Neg Status', s: 'shop' },
+    { n: 'Falling for a Sweet Phenomenon', r: 'Overtakes it at Euphoria 2 — stacks Genesis DMG off her follow-ups', s: 'shop' },
+    { n: 'Her Mournful Face', r: 'Budget: flat +40% Poison DMG', s: 'shop' },
+  ] },
+  { id: 'enigma', name: 'Enigma', owned: true, euphoria: true, note: 'Bastion support (SS)', afflatus: 'Intellect', role: 'Support', specialty: 'Dynamo Support/Sustain', insight: '', psychubes: [
+    { n: "The Riddle's Limit", r: 'Signature — DMG reduction on Bastion + team DMG Dealt buff', s: 'sig' },
+    { n: 'Luxurious Leisure', r: 'Generic ATK/Ult support fallback to strengthen his Bastion', s: 'shop' },
+  ] },
+  { id: 'ulrich', name: 'Ulrich', owned: true, euphoria: true, note: '', afflatus: 'Intellect', role: 'Sub-DPS', specialty: 'Reality DMG Enabler', insight: '', psychubes: [
+    { n: 'On the Hand of Time', r: 'Better than his sig if you have crit support — always-on PEN + Crit DMG', s: 'event' },
+    { n: 'A Tingle of a Thought', r: 'Signature — ATK, Crit Rate, Crit DMG for his Ult-focused kit', s: 'sig' },
+    { n: 'Luxurious Leisure', r: 'Ult-focused fallback', s: 'shop' },
+  ] },
+  { id: 'isolde', name: 'Isolde', owned: true, euphoria: true, note: 'Burn sub-DPS', afflatus: 'Spirit', role: 'Sub-DPS', specialty: 'Burn Debuffer', insight: '', psychubes: [
+    { n: 'Knock on the Door', r: 'Signature — Crit Rate + bonus damage to Burned enemies', s: 'sig' },
+    { n: 'Blasphemer of Night', r: 'Easy to trigger since Burn is a Neg Status', s: 'shop' },
+    { n: 'Luxurious Leisure', r: 'Ult-damage fallback', s: 'shop' },
+  ] },
+  { id: 'toothfairy', name: 'Tooth Fairy', owned: true, euphoria: true, note: 'AP-efficient sustain/CC', afflatus: 'Star', role: 'Sustain', specialty: 'Healer / Crit-Support', insight: '', psychubes: [
+    { n: 'Beyond Wonderland', r: 'Signature — HP + Healing Bonus + Crit Rate keeps her cleanse-on-crit reliable', s: 'sig' },
+    { n: 'Dawn is Coming', r: 'Extra healing throughput option', s: 'event' },
+    { n: 'Her Wish', r: 'Generic HP/heal budget staple', s: 'shop' },
+  ] },
+  { id: 'ramona', name: 'Ramona', owned: true, euphoria: true, note: 'Poison main carry', afflatus: 'Plant', role: 'DPS', specialty: 'Poison DPS', insight: '', psychubes: [
+    { n: 'Falling for a Sweet Phenomenon', r: 'BiS — stacks Genesis DMG fast off her frequent Extra Actions', s: 'shop' },
+    { n: 'Drown Out the Hustle', r: 'Signature — strong Genesis + Poison DMG, but stacks slower than the 5★', s: 'sig' },
+    { n: 'Blasphemer of Night', r: 'Budget Neg-Status/ATK option', s: 'shop' },
+  ] },
+  { id: 'paperheron', name: 'Paper Heron', owned: true, euphoria: true, note: '', afflatus: 'Plant', role: 'Support', specialty: 'Reality DMG AoE / Eureka Support', insight: '', psychubes: [
+    { n: 'Wayfarer of the Dao', r: 'Signature, clear BiS — team DMG per Eureka consumed + Incantation Might on array', s: 'sig' },
+    { n: 'Addio Coda', r: 'Fallback — party DMG + Inspiration on Eureka consumption', s: 'sig' },
+    { n: 'Brave New World', r: 'Cheap Ult/Incantation Might staple', s: 'shop' },
+  ] },
+  { id: 'brume', name: 'Brume', owned: true, euphoria: true, note: 'Electric Field sub-carry', afflatus: 'Beast', role: 'Sub-DPS', specialty: 'Mental DMG DPS', insight: '', psychubes: [
+    { n: 'Her Willful Leap', r: 'Signature — team DMG on Beast-Channel casts + Ult Might on Extra Actions', s: 'sig' },
+    { n: 'On the Hand of Time', r: 'Most of her damage is FUAs — PEN Rate + Crit DMG', s: 'event' },
+    { n: 'Luxurious Leisure', r: 'Ult Might + DMG bonus alternative', s: 'shop' },
+  ] },
+  { id: 'beryl', name: 'Beryl', owned: true, euphoria: true, note: 'Halo DPS (S+)', afflatus: 'Intellect', role: 'DPS', specialty: 'Mental DMG DPS (Halo)', insight: '', psychubes: [
+    { n: 'The Thousandfold Fate', r: 'Signature BiS — Crit DMG scales with accumulated Lingering Glow stacks', s: 'sig' },
+    { n: 'Long Night Talk', r: '~95% of signature performance', s: 'event' },
+    { n: 'Knock on the Door', r: '~90% of signature performance', s: 'sig' },
+  ] },
+  { id: 'charon', name: 'Charon', owned: true, euphoria: true, note: 'Top-tier healer/support', afflatus: 'Plant', role: 'Support', specialty: 'Genesis DMG Sub-DPS / Debuffer', insight: '', psychubes: [
+    { n: 'Buds Yet to Bloom', r: 'Signature BiS — Crit Rate, DMG Dealt, team-wide Crit DMG buff', s: 'sig' },
+    { n: 'On the Hand of Time', r: 'Crit DMG + PEN alternative', s: 'event' },
+    { n: 'Brave New World', r: 'Cheap Incantation Might staple', s: 'shop' },
+  ] },
+  { id: 'marsha', name: 'Marsha', owned: true, euphoria: true, note: 'Sustain/tank', afflatus: 'Beast', role: 'Sustain', specialty: 'Shield/Sustain', insight: '', psychubes: [
+    { n: 'Singleness of Heart', r: 'Signature — DMG reduction + team Crit DMG when Lingering Glow is high', s: 'sig' },
+    { n: 'Beyond Wonderland', r: 'HP + Crit Rate support alternative', s: 'sig' },
+    { n: "The Fool's Fortune", r: 'Generic defensive/HP staple', s: 'shop' },
+  ] },
+  { id: 'kiperina', name: 'Kiperina', owned: true, euphoria: true, note: 'Mental dmg + shields', afflatus: 'Star', role: 'Sustain', specialty: 'Shield/Support (Eureka)', insight: '', psychubes: [
+    { n: 'Aurora After Winter', r: 'Signature — stacking ATK on cast + party Crit Rate off Eureka consumption', s: 'sig' },
+    { n: 'Long Night Talk', r: 'Strong alt if maxed, esp. without Regulus', s: 'event' },
+    { n: 'Brave New World', r: 'Cheap support staple', s: 'shop' },
+  ] },
+  { id: 'fatutu', name: 'Fatutu', owned: true, euphoria: true, note: 'Sustain via FUA heals', afflatus: 'Mineral', role: 'Sustain', specialty: 'Healer', insight: '', psychubes: [
+    { n: 'Cracks in the Shell', r: 'Signature BiS — Healing Bonus + party Crit DMG buff', s: 'sig' },
+    { n: 'Wandering Improviser', r: 'Healing Bonus + HP; her dmg-sharing stacks allied Ult Might', s: 'event' },
+    { n: 'That Inquisitive Dear', r: '6★ heal psychube, reliable substitute', s: 'sig' },
+  ] },
+  { id: 'barcarola', name: 'Barcarola', owned: true, euphoria: true, note: 'Eureka sub-DPS/buffer', afflatus: 'Star', role: 'Sub-DPS', specialty: 'Mental DMG DPS (Eureka)', insight: '', psychubes: [
+    { n: 'Addio Coda', r: 'Signature BiS — party DMG, +2 Impromptu instances, Crit Rate', s: 'sig' },
+    { n: 'For Rehabilitation', r: 'Crit Rate + Incantation Might + DMG bonus', s: 'event' },
+    { n: 'Thunderous Applause', r: 'Crit DMG, though only on her own attacks', s: 'shop' },
+  ] },
+  { id: 'flutterpage', name: 'Flutterpage', owned: true, euphoria: true, note: 'Aleph substitute (Eureka)', afflatus: 'Star', role: 'Support', specialty: 'Buffer / Sub-DPS', insight: '', psychubes: [
+    { n: 'On the Hand of Time', r: 'Her signature — PEN Rate + stacking Crit DMG (often better on your FUA DPS)', s: 'sig' },
+    { n: 'Aurora After Winter', r: 'Recommended when the sig is given to the DPS instead', s: 'sig' },
+    { n: 'Same Old Story', r: 'FUA damage + Incantation Might backup', s: 'event' },
+  ] },
+  { id: 'anjonala', name: 'Anjo Nala', owned: true, euphoria: true, note: 'Flexible support/sub-DPS', afflatus: 'Beast', role: 'Support', specialty: 'Mental Burst DPS / Bind', insight: '', psychubes: [
+    { n: 'Transcendent Love', r: 'Signature — ATK, Crit Rate/DMG, DMG Dealt for her and her bound ally', s: 'sig' },
+    { n: 'On the Hand of Time', r: 'Excellent for her frequent FUAs — PEN + Crit DMG', s: 'event' },
+    { n: 'Same Old Story', r: 'Incantation Might + DMG Dealt backup', s: 'event' },
+  ] },
+  { id: 'tuesday', name: 'Tuesday', owned: true, euphoria: true, note: 'Poison array core', afflatus: 'Spirit', role: 'Support', specialty: 'Poison DPS/Support', insight: '', psychubes: [
+    { n: 'And the Maid Says', r: 'Signature — +Poison DMG for all allies plus extra for Tuesday', s: 'sig' },
+    { n: 'Never-ending Q&A', r: 'ATK + Crit DMG (her Poison can crit)', s: 'event' },
+    { n: 'Blasphemer of Night', r: 'Budget Neg-Status option', s: 'shop' },
+  ] },
+  { id: 'semmelweis', name: 'Semmelweis', owned: true, euphoria: true, note: 'HP-drain buffer', afflatus: 'Mineral', role: 'Support', specialty: 'Support/Buffer (HP-drain)', insight: '', psychubes: [
+    { n: 'The Third Commitment', r: 'Best after Euphoria — Array potency + 16% HP for Bloodtithe sustain', s: 'event' },
+    { n: 'From the Depths', r: 'Signature — grants Echoes of Life + Incantation Might', s: 'sig' },
+    { n: 'Brave New World', r: 'Cheap Incantation Might staple', s: 'shop' },
+  ] },
+  { id: 'kakania', name: 'Kakania', owned: true, euphoria: true, note: 'Best general healer', afflatus: 'Plant', role: 'Sustain', specialty: 'Shield/Sustain (Tank-Support)', insight: '', psychubes: [
+    { n: "The Fighter's Best Wishes", r: 'Signature — HP, DMG Taken Reduction, Genesis DMG buff', s: 'sig' },
+    { n: 'Beyond Wonderland', r: 'HP + Crit Rate alternative', s: 'sig' },
+    { n: 'Dawn is Coming', r: 'Adds some healing to her sustain', s: 'event' },
+  ] },
+  { id: 'melania', name: 'Melania', owned: true, euphoria: true, note: 'Ult-support (Recoleta BiS partner)', afflatus: 'Star', role: 'Support', specialty: 'Mental Burst DPS / Ult-Support', insight: '', psychubes: [
+    { n: 'Luxurious Leisure', r: 'Standard go-to pre/post-Euphoria — Ult Might + DMG bonus', s: 'shop' },
+    { n: 'One with the Flow', r: 'BiS specifically for her Euphoria form', s: 'event' },
+    { n: 'The Carat of a Heart', r: 'Easy to activate via Passion Drain for Ult Might', s: 'event' },
+  ] },
+  { id: 'voyager', name: 'Voyager', owned: true, euphoria: true, note: 'Eureka support', afflatus: 'Star', role: 'Support', specialty: 'Debuffer / Crowd Control', insight: '', psychubes: [
+    { n: 'Yearning Desire', r: 'Commonly cited best — bonus DMG vs debuffed enemies + Incantation Might', s: 'shop' },
+    { n: 'Luxurious Leisure', r: '6★ Ult Might option', s: 'shop' },
+    { n: 'Blasphemer of Night', r: 'Stronger on full debuff-stack teams but harder to use', s: 'shop' },
+  ] },
+  { id: 'medicinepocket', name: 'Medicine Pocket', owned: true, euphoria: true, note: 'Sustain (needs Euphoria for full value)', afflatus: 'Beast', role: 'Sustain', specialty: 'Healer / Debuffer', insight: '', psychubes: [
+    { n: 'Decode', r: 'Preferred for healing output — up to +15% Healing Done', s: 'event' },
+    { n: 'That Inquisitive Dear', r: 'The 6★ heal psychube — +18% Healing Done', s: 'sig' },
+    { n: 'Laughter and Laughter', r: '5★ budget healer alternative', s: 'shop' },
+  ] },
+  { id: 'noire', name: 'Noire', owned: true, euphoria: true, note: 'Neg Status DPS', afflatus: 'Plant', role: 'DPS', specialty: 'Genesis/Mental Burst DPS', insight: '', psychubes: [
+    { n: 'Rehearsal of Dreams', r: 'Signature, by far her best — huge Ult Might + DMG Dealt', s: 'sig' },
+    { n: 'Another Story', r: 'Ult Might + DMG Dealt if you cast high-rank incantations', s: 'event' },
+    { n: 'Brave New World', r: 'F2P — buy unlimited copies in the Fragment Shop', s: 'shop' },
+  ] },
+  { id: 'willow', name: 'Willow', owned: true, euphoria: true, note: 'Poison sub-carry (post-Euphoria)', afflatus: 'Plant', role: 'Sub-DPS', specialty: 'Poison DPS', insight: '', psychubes: [
+    { n: 'Offbeat Strides', r: 'Signature — best overall in long fights; ramps Moxie/Poison/Genesis', s: 'sig' },
+    { n: 'Her Mournful Face', r: 'Better in SHORT fights — flat +40% Poison DMG, no ramp needed', s: 'shop' },
+    { n: 'Silent and Adoring', r: 'ATK% + stacks damage when her Channel ends', s: 'shop' },
+  ] },
+  { id: 'recoleta', name: 'Recoleta', owned: false, euphoria: false, note: 'Ult-burst carry — pairs with Melania', afflatus: 'Mineral', role: 'DPS', specialty: 'Reality DMG DPS (Ult-Burst)', insight: '', psychubes: [
+    { n: 'The Final Roll', r: 'Signature BiS — up to +24% Ult Might and +32% Crit DMG', s: 'sig' },
+    { n: 'Rehearsal of Dreams', r: 'Ult Might fallback without the crit', s: 'sig' },
+    { n: 'Another Story', r: 'Ult Might + DMG Dealt fallback', s: 'event' },
+  ] },
+];
+
+const defaultTeams = [
+  {
+    id: 'core', name: 'The Core',
+    desc: 'Premier general-purpose comp. Beryl drives Halo/Thermoelectric stacking, Charon keeps Dynamo/Moxie flowing, Anjo Nala binds a teammate and amps the whole team. Handles nearly all content with minimal setup.',
+    rotation: 'Open with Charon to build Dynamo, let Anjo Nala bind Beryl for the damage buff, then loop Beryl\'s skills to stack Halo before ulting. Low execution — good default team.',
+    slots: [
+      { label: 'DPS', options: ['beryl'] },
+      { label: 'Support', options: ['charon'] },
+      { label: 'Support', options: ['anjonala'] },
+      { label: 'Flex', options: ['isolde', 'enigma'] },
+    ],
+  },
+  {
+    id: 'poison', name: 'Poison Team',
+    desc: 'Ramona resolves Poison stacks repeatedly, Tuesday keeps Poison sticking via her Array, Willow (Euphoria) converts stacks into Hag\'s Bane as sub-carry instead of competing for AP.',
+    rotation: 'Tuesday and Willow are both AP-negative — stagger their turns so you\'re never dry. Let Tuesday\'s Array apply first, Ramona detonates stacks for burst, Willow layers Hag\'s Bane on top. Sustain covers you through the AP-starved rounds.',
+    slots: [
+      { label: 'Carry', options: ['ramona'] },
+      { label: 'Core', options: ['tuesday'] },
+      { label: 'Sub-carry', options: ['willow'], note: 'wants Euphoria' },
+      { label: 'Sustain', options: ['marsha', 'kakania', 'jessica'] },
+    ],
+  },
+  {
+    id: 'eureka', name: 'Impromptu Incantation (Eureka)',
+    desc: 'Voyager + Barcarola generate/spend Eureka stacks; Flutterpage substitutes for Aleph as the AP-generating support.',
+    rotation: 'Build Eureka with Barcarola/Voyager\'s basics before dumping it into their Ults. Flutterpage consumes Eureka to hand out extra AP — time her turn right before your carry needs to burst.',
+    slots: [
+      { label: 'DPS', options: ['voyager'] },
+      { label: 'Sub-DPS', options: ['barcarola'] },
+      { label: 'Support', options: ['flutterpage'] },
+      { label: 'Sustain', options: ['kiperina', 'toothfairy', 'medicinepocket', 'fatutu'] },
+    ],
+  },
+  {
+    id: 'negstatus', name: 'Noire / Neg Status',
+    desc: 'Anjo Nala boosts Noire\'s Ultimate damage and applies the Neg Status she needs to recast it.',
+    rotation: 'Anjo Nala binds Noire first, then keep Noire recasting her Ult off the Neg Status Anjo Nala feeds her. Sustain just needs to keep pace.',
+    slots: [
+      { label: 'DPS', options: ['noire'] },
+      { label: 'Support', options: ['anjonala'] },
+      { label: 'Sustain', options: ['charon', 'kakania'] },
+    ],
+  },
+  {
+    id: 'recoleta', name: 'Recoleta Ult-Burst',
+    desc: 'Aspirational — needs Recoleta. Melania is her only perfect partner, feeding 72% Ultimate Might and a Crit buff into Recoleta\'s bursts.',
+    rotation: 'Recoleta and Melania split AP to upkeep Passion Drain and stack Fixed Plan on the team, then unload with Recoleta\'s Ult for the burst window.',
+    slots: [
+      { label: 'Carry', options: ['recoleta'] },
+      { label: 'Support', options: ['melania'] },
+      { label: 'Sustain', options: ['medicinepocket', 'charon'] },
+    ],
+  },
+];
+
+function ensureShape(s) {
+  s.characters = (s.characters || []).map(c => ({
+    afflatus: '', role: '', specialty: '', psychube: '', insight: '', note: '', euphoria: false, owned: false, psychubes: [],
+    ...c,
+  }));
+  s.teams = (s.teams || []).map(t => ({ desc: '', rotation: '', ...t }));
+  return s;
+}
+
+// Backfill reference data (afflatus/specialty/psychubes/role) into older saves that predate these fields,
+// and add any brand-new default characters missing from the save. Never overwrites the user's own edits.
+function migrateReferenceData(s) {
+  const byId = Object.fromEntries(s.characters.map(c => [c.id, c]));
+  defaultCharacters.forEach(def => {
+    const cur = byId[def.id];
+    if (!cur) {
+      s.characters.push(JSON.parse(JSON.stringify(def)));
+      return;
+    }
+    if (!cur.afflatus && def.afflatus) cur.afflatus = def.afflatus;
+    if (!cur.role && def.role) cur.role = def.role;
+    if (!cur.specialty && def.specialty) cur.specialty = def.specialty;
+    if ((!cur.psychubes || cur.psychubes.length === 0) && def.psychubes) {
+      cur.psychubes = JSON.parse(JSON.stringify(def.psychubes));
+    }
+  });
+  return s;
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return migrateReferenceData(ensureShape(JSON.parse(raw)));
+  } catch (e) {}
+  return ensureShape({ characters: JSON.parse(JSON.stringify(defaultCharacters)), teams: JSON.parse(JSON.stringify(defaultTeams)) });
+}
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+let state = loadState();
+saveState(); // persist any migration backfill immediately
+let rosterFilters = { search: '', afflatus: '', role: '' };
+let teamBuilder = { slots: [] };
+
+function getChar(id) { return state.characters.find(c => c.id === id); }
+function slugify(name) { return name.toLowerCase().replace(/[^a-z0-9]+/g, ''); }
+function esc(str) { return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+const SRC_LABEL = { sig: 'Sig', shop: 'Shop', event: 'Event' };
+
+function populateFilterSelects() {
+  const af = document.getElementById('afflatusFilter');
+  const rf = document.getElementById('roleFilter');
+  af.innerHTML = `<option value="">All Afflatus</option>` + AFFLATUS_LIST.map(a => `<option value="${a}">${a}</option>`).join('') + `<option value="Unknown">Unknown</option>`;
+  rf.innerHTML = `<option value="">All Roles</option>` + ROLE_LIST.map(r => `<option value="${r}">${r}</option>`).join('') + `<option value="Unknown">Unknown</option>`;
+}
+
+function renderRoster() {
+  const grid = document.getElementById('rosterGrid');
+  grid.innerHTML = '';
+  const sorted = [...state.characters].sort((a, b) => {
+    if (a.owned !== b.owned) return a.owned ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+  const filtered = sorted.filter(c => {
+    if (rosterFilters.search) {
+      const q = rosterFilters.search.toLowerCase();
+      const pbNames = (c.psychubes || []).map(p => p.n).join(' ');
+      const haystack = `${c.name} ${c.specialty || ''} ${c.note || ''} ${pbNames}`.toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    if (rosterFilters.afflatus) {
+      if (rosterFilters.afflatus === 'Unknown') { if (c.afflatus) return false; }
+      else if (c.afflatus !== rosterFilters.afflatus) return false;
+    }
+    if (rosterFilters.role) {
+      if (rosterFilters.role === 'Unknown') { if (c.role) return false; }
+      else if (c.role !== rosterFilters.role) return false;
+    }
+    return true;
+  });
+
+  filtered.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'char-card' + (c.owned ? ' owned' : '');
+
+    const afClass = c.afflatus ? 'af-' + c.afflatus : 'af-none';
+    const specialtyBadge = c.specialty
+      ? `<span class="specialty-badge">${esc(c.specialty)}</span>`
+      : `<span class="specialty-badge empty">no specialty set</span>`;
+
+    const pbHtml = (c.psychubes && c.psychubes.length)
+      ? `<div class="psychube-block">
+           <div class="pb-title">Top psychubes</div>
+           ${c.psychubes.map((p, i) => `
+             <div class="pb-item">
+               <span class="pb-rank">${i + 1}.</span>
+               <span class="pb-body"><span class="pb-name">${esc(p.n)}</span> <span class="pb-reason">— ${esc(p.r)}</span></span>
+               <span class="src-tag ${p.s}" title="acquisition">${SRC_LABEL[p.s] || ''}</span>
+             </div>`).join('')}
+         </div>`
+      : '';
+
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="char-name-wrap" data-toggle="${c.id}" title="Toggle owned">
+          <div class="char-name">${esc(c.name)}</div>
+          <div class="char-meta">${esc(c.note) || (c.owned ? 'owned' : 'not owned')}</div>
+        </div>
+        <div class="char-actions">
+          <span class="euphoria-star ${c.euphoria ? 'on' : ''}" data-euph="${c.id}" title="Toggle Euphoria unlocked">&#9733;</span>
+          <span class="remove-x" data-remove="${c.id}" title="Remove from list">&times;</span>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="afflatus-badge ${afClass}">${esc(c.afflatus) || 'Afflatus?'}</span>
+        ${specialtyBadge}
+      </div>
+      ${pbHtml}
+      <div class="edit-toggle" data-edittoggle="${c.id}">edit details &#9662;</div>
+      <div class="edit-area" data-editarea="${c.id}">
+        <div class="tag-row">
+          <select data-afflatus="${c.id}">
+            <option value="">Afflatus?</option>
+            ${AFFLATUS_LIST.map(a => `<option value="${a}" ${c.afflatus === a ? 'selected' : ''}>${a}</option>`).join('')}
+          </select>
+          <select data-role="${c.id}">
+            <option value="">Role?</option>
+            ${ROLE_LIST.map(r => `<option value="${r}" ${c.role === r ? 'selected' : ''}>${r}</option>`).join('')}
+          </select>
+        </div>
+        <input type="text" data-specialty="${c.id}" value="${esc(c.specialty)}" placeholder="Specialty (e.g. Poison DPS)">
+        <input type="text" data-insight="${c.id}" value="${esc(c.insight)}" placeholder="Insight (e.g. III / 30)">
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  const ownedCount = state.characters.filter(c => c.owned).length;
+  document.getElementById('rosterStat').textContent = `${filtered.length} shown · ${ownedCount} / ${state.characters.length} owned`;
+
+  grid.querySelectorAll('[data-toggle]').forEach(el => el.addEventListener('click', () => {
+    const c = getChar(el.dataset.toggle);
+    c.owned = !c.owned;
+    if (!c.owned) c.euphoria = false;
+    saveState(); renderRoster(); renderTeams();
+  }));
+  grid.querySelectorAll('[data-euph]').forEach(el => el.addEventListener('click', () => {
+    const c = getChar(el.dataset.euph);
+    if (!c.owned) return;
+    c.euphoria = !c.euphoria;
+    saveState(); renderRoster(); renderTeams();
+  }));
+  grid.querySelectorAll('[data-remove]').forEach(el => el.addEventListener('click', () => {
+    if (!confirm('Remove this character from your list?')) return;
+    state.characters = state.characters.filter(c => c.id !== el.dataset.remove);
+    saveState(); renderRoster(); renderTeams();
+  }));
+  grid.querySelectorAll('[data-edittoggle]').forEach(el => el.addEventListener('click', () => {
+    const area = grid.querySelector(`[data-editarea="${el.dataset.edittoggle}"]`);
+    area.classList.toggle('open');
+  }));
+  grid.querySelectorAll('[data-afflatus]').forEach(el => el.addEventListener('change', () => {
+    getChar(el.dataset.afflatus).afflatus = el.value; saveState(); renderRoster();
+  }));
+  grid.querySelectorAll('[data-role]').forEach(el => el.addEventListener('change', () => {
+    getChar(el.dataset.role).role = el.value; saveState();
+  }));
+  grid.querySelectorAll('[data-specialty]').forEach(el => el.addEventListener('input', () => {
+    getChar(el.dataset.specialty).specialty = el.value; saveState();
+  }));
+  grid.querySelectorAll('[data-insight]').forEach(el => el.addEventListener('input', () => {
+    getChar(el.dataset.insight).insight = el.value; saveState();
+  }));
+}
+
+document.getElementById('rosterSearch').addEventListener('input', e => { rosterFilters.search = e.target.value; renderRoster(); });
+document.getElementById('afflatusFilter').addEventListener('change', e => { rosterFilters.afflatus = e.target.value; renderRoster(); });
+document.getElementById('roleFilter').addEventListener('change', e => { rosterFilters.role = e.target.value; renderRoster(); });
+
+document.getElementById('addCharBtn').addEventListener('click', () => {
+  const input = document.getElementById('newCharInput');
+  const name = input.value.trim();
+  if (!name) return;
+  const id = slugify(name);
+  if (state.characters.some(c => c.id === id)) { alert('Already on your list.'); return; }
+  state.characters.push({ id, name, owned: true, euphoria: false, note: '', afflatus: '', role: '', specialty: '', psychube: '', insight: '', psychubes: [] });
+  input.value = '';
+  saveState(); renderRoster(); renderTeams();
+});
+document.getElementById('newCharInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('addCharBtn').click(); });
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'r1999-roster-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      if (!parsed.characters || !parsed.teams) throw new Error('bad shape');
+      state = migrateReferenceData(ensureShape(parsed));
+      saveState(); renderRoster(); renderTeams();
+      alert('Roster imported.');
+    } catch (err) { alert('Could not import that file — invalid roster JSON.'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+function evaluateSlot(slot) {
+  const ownedOptions = slot.options.map(id => getChar(id)).filter(c => c && c.owned);
+  if (ownedOptions.length === 0) return { status: 'bad', chosen: null };
+  const euphPick = ownedOptions.find(c => c.euphoria);
+  return { status: 'ok', chosen: euphPick || ownedOptions[0] };
+}
+
+function renderWishlist() {
+  const el = document.getElementById('wishlistContent');
+  const oneAway = [], furtherOff = [];
+  state.teams.forEach(team => {
+    const evals = team.slots.map(evaluateSlot);
+    const badSlots = team.slots.filter((s, i) => evals[i].status === 'bad');
+    if (badSlots.length === 0) return;
+    const needList = badSlots.map(s => s.options.map(id => getChar(id)?.name || id).join(' or ')).join('; ');
+    if (badSlots.length === 1) oneAway.push({ team: team.name, need: needList });
+    else furtherOff.push({ team: team.name, need: needList, count: badSlots.length });
+  });
+  let html = '';
+  if (oneAway.length === 0 && furtherOff.length === 0) {
+    html = `<div class="empty-msg">Every team on your list is fully built. Nothing pending.</div>`;
+  } else if (oneAway.length === 0) {
+    html = `<div class="empty-msg">No team is exactly one pull away right now — see "further off" below.</div>`;
+  } else {
+    html = oneAway.map(w => `<div class="wishlist-item"><b>${esc(w.team)}</b> — needs <span class="need">${esc(w.need)}</span></div>`).join('');
+  }
+  if (furtherOff.length > 0) {
+    html += `<details class="further-off"><summary>${furtherOff.length} team(s) further off</summary>` +
+      furtherOff.map(w => `<div class="wishlist-item"><b>${esc(w.team)}</b> — needs ${w.count} more: <span class="need">${esc(w.need)}</span></div>`).join('') + `</details>`;
+  }
+  el.innerHTML = html;
+}
+
+function renderTeams() {
+  renderWishlist();
+  const grid = document.getElementById('teamGrid');
+  grid.innerHTML = '';
+  state.teams.forEach(team => {
+    const evals = team.slots.map(evaluateSlot);
+    const okCount = evals.filter(e => e.status === 'ok').length;
+    let status = 'missing';
+    if (okCount === team.slots.length) status = 'ready';
+    else if (okCount > 0) status = 'partial';
+    const card = document.createElement('div');
+    card.className = `team-card ${status}`;
+    const slotsHtml = team.slots.map((slot, i) => {
+      const ev = evals[i];
+      let valueHtml;
+      if (ev.status === 'ok') {
+        const euphNote = (slot.note && slot.note.toLowerCase().includes('euphoria'))
+          ? (ev.chosen.euphoria ? `<span class="euph-tag">&#9733; Euphoria</span>` : `<span class="euph-tag" style="color:var(--amber)">wants Euphoria</span>`)
+          : (ev.chosen.euphoria ? `<span class="euph-tag">&#9733;</span>` : '');
+        valueHtml = `<span class="ok">${esc(ev.chosen.name)}</span>${euphNote}`;
+      } else {
+        const names = slot.options.map(id => getChar(id)?.name || id).join(' / ');
+        valueHtml = `<span class="bad">missing: ${esc(names)}</span>`;
+      }
+      return `<li><span class="slot-label">${esc(slot.label)}</span><span class="slot-value">${valueHtml}</span></li>`;
+    }).join('');
+    const rotationHtml = team.rotation ? `<div class="team-rotation"><b>Rotation —</b> ${esc(team.rotation)}</div>` : '';
+    card.innerHTML = `
+      <div class="team-head"><h3>${esc(team.name)}</h3><span class="badge ${status}">${status}</span></div>
+      <div class="team-desc">${esc(team.desc)}</div>
+      <ul class="slot-list">${slotsHtml}</ul>
+      ${rotationHtml}
+      <div class="team-remove"><span data-removeteam="${team.id}">remove team</span></div>
+    `;
+    grid.appendChild(card);
+  });
+  grid.querySelectorAll('[data-removeteam]').forEach(el => el.addEventListener('click', () => {
+    if (!confirm('Remove this team?')) return;
+    state.teams = state.teams.filter(t => t.id !== el.dataset.removeteam);
+    saveState(); renderTeams();
+  }));
+}
+
+function renderBuilder() {
+  const container = document.getElementById('builderSlots');
+  container.innerHTML = '';
+  const sortedChars = [...state.characters].sort((a, b) => (b.owned - a.owned) || a.name.localeCompare(b.name));
+  teamBuilder.slots.forEach((slot, idx) => {
+    const div = document.createElement('div');
+    div.className = 'builder-slot';
+    const chips = sortedChars.map(c => `<span class="chip ${slot.options.has(c.id) ? 'selected' : ''} ${c.owned ? '' : 'not-owned'}" data-slotidx="${idx}" data-cid="${c.id}">${esc(c.name)}</span>`).join('');
+    div.innerHTML = `
+      <div class="builder-slot-head">
+        <input type="text" class="slot-label-input" data-slotidx="${idx}" value="${esc(slot.label)}" placeholder="Slot label (e.g. DPS)">
+        <span class="remove-slot" data-removeslot="${idx}">remove slot</span>
+      </div>
+      <div class="chip-picker">${chips}</div>`;
+    container.appendChild(div);
+  });
+  container.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', () => {
+    const idx = +ch.dataset.slotidx, cid = ch.dataset.cid;
+    const opts = teamBuilder.slots[idx].options;
+    if (opts.has(cid)) opts.delete(cid); else opts.add(cid);
+    renderBuilder();
+  }));
+  container.querySelectorAll('.slot-label-input').forEach(inp => inp.addEventListener('input', () => { teamBuilder.slots[+inp.dataset.slotidx].label = inp.value; }));
+  container.querySelectorAll('[data-removeslot]').forEach(el => el.addEventListener('click', () => { teamBuilder.slots.splice(+el.dataset.removeslot, 1); renderBuilder(); }));
+}
+
+document.getElementById('addSlotBtn').addEventListener('click', () => { teamBuilder.slots.push({ label: '', options: new Set() }); renderBuilder(); });
+document.getElementById('saveTeamBtn').addEventListener('click', () => {
+  const name = document.getElementById('builderName').value.trim();
+  const desc = document.getElementById('builderDesc').value.trim();
+  const rotation = document.getElementById('builderRotation').value.trim();
+  const slots = teamBuilder.slots.filter(s => s.options.size > 0).map((s, i) => ({ label: s.label.trim() || `Slot ${i + 1}`, options: [...s.options] }));
+  if (!name || slots.length === 0) { alert('Give the team a name and at least one slot with a character selected.'); return; }
+  state.teams.push({ id: slugify(name) + '-' + Date.now(), name, desc, rotation, slots });
+  teamBuilder = { slots: [] };
+  document.getElementById('builderName').value = '';
+  document.getElementById('builderDesc').value = '';
+  document.getElementById('builderRotation').value = '';
+  renderBuilder(); saveState(); renderTeams();
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('view-' + btn.dataset.view).classList.add('active');
+}));
+
+populateFilterSelects();
+renderRoster();
+renderTeams();
+renderBuilder();
+</script>
+
+</body>
+</html>
