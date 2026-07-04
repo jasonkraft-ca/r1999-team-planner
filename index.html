@@ -131,10 +131,29 @@
     position: relative; width: 26px; height: 26px; border-radius: 5px; overflow: hidden; flex-shrink: 0;
     background: var(--panel-2); border: 1px solid var(--border);
     display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform .1s, border-color .1s;
   }
+  .pb-icon:hover { border-color: var(--gold-dim); transform: scale(1.12); }
+  .pb-icon.missing { cursor: default; }
+  .pb-icon.missing:hover { border-color: var(--border); transform: none; }
   .pb-icon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .pb-icon.missing::after { content: '\25C6'; color: var(--text-dim); font-size: 11px; }
   .pb-body { flex: 1; }
+
+  /* Psychube lightbox */
+  .lightbox-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(10,8,6,.86);
+    z-index: 1000; align-items: center; justify-content: center; padding: 40px 20px;
+  }
+  .lightbox-overlay.open { display: flex; }
+  .lightbox-box { max-width: 420px; width: 100%; text-align: center; }
+  .lightbox-box img { max-width: 100%; max-height: 72vh; border-radius: 8px; border: 1px solid var(--gold-dim); box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+  .lightbox-caption { margin-top: 12px; color: var(--gold); font-size: 15px; }
+  .lightbox-close {
+    position: absolute; top: 18px; right: 26px; color: var(--text-dim); font-size: 30px;
+    cursor: pointer; line-height: 1; user-select: none;
+  }
+  .lightbox-close:hover { color: var(--gold); }
   .pb-name { color: var(--text); }
   .pb-reason { color: var(--text-dim); font-size: 11px; }
   .pb-item .src-tag { flex-shrink: 0; align-self: center; }
@@ -261,6 +280,14 @@
     </div>
   </section>
 </main>
+
+<div class="lightbox-overlay" id="lightboxOverlay">
+  <span class="lightbox-close" id="lightboxClose">&times;</span>
+  <div class="lightbox-box">
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+</div>
 
 <script>
 const STORAGE_KEY = 'r1999-team-planner-v1';
@@ -511,8 +538,12 @@ function avatarHtml(c, size) {
   </span>`;
 }
 function pbIconHtml(name) {
-  return `<span class="pb-icon">
-    <img src="images/psychubes/${pbSlug(name)}.png" alt="" loading="lazy" onerror="this.parentNode.classList.add('missing');this.remove()">
+  const slug = pbSlug(name);
+  // Small icon first; if that 404s, fall back to the large card art at small size;
+  // if that also fails, mark .missing so the CSS diamond fallback shows.
+  return `<span class="pb-icon" data-pbname="${esc(name)}" data-pbslug="${slug}">
+    <img src="images/psychubes/${slug}.png" alt="" loading="lazy"
+         onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='images/psychubes/large/${slug}.png';}else{this.parentNode.classList.add('missing');this.remove();}">
   </span>`;
 }
 
@@ -810,6 +841,23 @@ document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click
   btn.classList.add('active');
   document.getElementById('view-' + btn.dataset.view).classList.add('active');
 }));
+
+// ---------- Psychube lightbox ----------
+function openLightbox(name) {
+  document.getElementById('lightboxImg').src = `images/psychubes/large/${pbSlug(name)}.png`;
+  document.getElementById('lightboxCaption').textContent = name;
+  document.getElementById('lightboxOverlay').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightboxOverlay').classList.remove('open');
+  document.getElementById('lightboxImg').src = '';
+}
+document.addEventListener('click', e => {
+  const icon = e.target.closest('.pb-icon');
+  if (icon && !icon.classList.contains('missing')) { openLightbox(icon.dataset.pbname); return; }
+  if (e.target.id === 'lightboxOverlay' || e.target.id === 'lightboxClose') closeLightbox();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
 populateFilterSelects();
 renderRoster();
