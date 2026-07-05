@@ -469,6 +469,42 @@ const defaultCharacters = [
     { n: 'Rehearsal of Dreams', r: 'Ult Might fallback without the crit', s: 'sig' },
     { n: 'Another Story', r: 'Ult Might + DMG Dealt fallback', s: 'event' },
   ] },
+
+  // Referenced by prydwen.gg's Teams Database comps but not owned/profiled — kept minimal
+  // (just enough for team slots to resolve real names instead of raw ids). Toggle "owned"
+  // and fill in details yourself if you pick any of these up.
+  { id: 'liangyue', name: 'Liang Yue', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'chengheguang', name: 'Cheng Heguang', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'nautika', name: 'Nautika', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'sentinel', name: 'Sentinel', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'rubuska', name: 'Rubuska', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'regulus', name: 'Regulus', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'aleph', name: 'Aleph', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'lopera', name: 'Lopera', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'igor', name: 'Igor', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'moldir', name: 'Moldir', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'ezioauditore', name: 'Ezio Auditore', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'kassandra', name: 'Kassandra', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'sotheby', name: 'Sotheby', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'marcus', name: 'Marcus', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'argus', name: 'Argus', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'vila', name: 'Vila', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'windsong', name: 'Windsong', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'jiuniangzi', name: 'Jiu Niangzi', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'centurion', name: 'Centurion', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'getian', name: 'Getian', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'pickles', name: 'Pickles', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'eternity', name: 'Eternity', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: '37', name: '37', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'buddyfairchild', name: 'Buddy Fairchild', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'j', name: 'J', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'ananlee', name: 'An-an Lee', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'msnewbabel', name: 'Ms. NewBabel', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'hissabeth', name: 'Hissabeth', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'druvisiii', name: 'Druvis III', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'ezratheodore', name: 'Ezra Theodore', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'spathodea', name: 'Spathodea', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'mercuria', name: 'Mercuria', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
 ];
 
 const defaultTeams = [
@@ -527,6 +563,57 @@ const defaultTeams = [
   },
 ];
 
+// Full Teams Database from prydwen.gg/re1999/teams-database (38 comps, scraped 2026-07).
+// These are raw site data — generic "Member" slots, no rotation notes — layered on top of
+// the 5 curated teams above. Most reference characters outside your current roster; that's
+// expected, they're reference material for the wider game, not all built for your collection.
+const dbTeamsRaw = [
+  [1, "I Choose You, Qiangliang!", "FUA, Crit", ['liangyue', 'flutterpage', 'chengheguang', 'marsha']],
+  [2, "Ride Or Die, And We're All Outta Rides", "Dynamo, FUA", ['brume', 'charon', 'anjonala', 'fatutu']],
+  [3, "Pew Pew Pew (Vegan)", "Inspiration, Plant", ['paperheron', 'mercuria', 'toothfairy', 'kiperina']],
+  [4, "Lesbian Religious Trauma", "HP Loss, FUA", ['nautika', 'semmelweis', 'sentinel', 'rubuska']],
+  [5, "Tourmaline For Protection, Oh And A Glock", "Glow, FUA", ['beryl', 'isolde', 'flutterpage', 'marsha']],
+  [6, "Pew Pew Pew", "Inspiration, Crit", ['barcarola', 'regulus', 'aleph', 'kiperina']],
+  [7, "Raise Your Hand If 2.2 Did You Dirty", "Ultimate", ['lopera', 'igor', 'moldir', 'marsha']],
+  [8, "Welcome To The Streets", "Ultimate", ['ezioauditore', 'melania', 'kassandra', 'medicinepocket']],
+  [9, "Take A Shot Whenever He Says Addio", "FUA", ['ezioauditore', 'flutterpage', 'fatutu', 'kassandra']],
+  [10, "Genesis Style - Magic Number Jutsu", "Poison", ['ezioauditore', 'jessica', 'tuesday', 'sotheby']],
+  [11, "Dogwater Type Coverage", "Plant, Upgrade", ['marcus', 'argus', 'mercuria', 'vila']],
+  [12, "Infinite Bladeworks Aurafarming", "Ultimate", ['recoleta', 'moldir', 'melania', 'medicinepocket']],
+  [13, "Snowball Fight", "FUA, Crit", ['windsong', 'flutterpage', 'lopera', 'vila']],
+  [14, "Glug Glug 3000", "FUA", ['jiuniangzi', 'sentinel', 'flutterpage', 'fatutu']],
+  [15, "Whatever, Go My Scarab", "Heal, FUA", ['kakania', 'flutterpage', 'fatutu']],
+  [16, "WE ARE SO BACK", "Ultimate", ['centurion', 'getian', 'melania', 'medicinepocket']],
+  [17, "Spooky Scary Skeletons", "HP Loss", ['semmelweis', 'pickles', 'eternity', 'medicinepocket']],
+  [18, "The Orphanage", "FUA, Control", ['37', 'anjonala', 'flutterpage', 'fatutu']],
+  [19, "WHAT IS THIS RAT DOING HERE", "Ultimate", ['lopera', 'buddyfairchild', 'melania', 'medicinepocket']],
+  [20, "Geneva Suggestions", "Poison, Crit", ['willow', 'tuesday', 'kakania', 'sotheby']],
+  [21, "Benefit From Reading", "Upgrade", ['marcus', 'mercuria', 'kakania', 'vila']],
+  [22, "Red Hot Chilipeppers", "Debuff", ['tuesday', 'isolde', 'j', 'sotheby']],
+  [23, "Look At All These Debuffs", "Debuff, Ultimate", ['noire', 'ananlee', 'melania', 'vila']],
+  [24, "Why Are You Hitting Yourself", "HP Loss, FUA", ['j', 'msnewbabel', 'semmelweis', 'eternity']],
+  [25, "The Doctor Doesn't Like Angels", "Control, Debuff", ['jessica', 'hissabeth', 'druvisiii', 'ezratheodore']],
+  [26, "Burn Baby Burn", "Burn, FUA", ['isolde', 'lopera', 'medicinepocket', 'spathodea']],
+  [27, "Impromptu - Core", "Inspiration, Support Core", ['toothfairy', 'kiperina']],
+  [28, "Poison - Core", "Poison, Support Core", ['tuesday', 'jessica']],
+  [29, "FUA - Core", "FUA, Support Core", ['flutterpage', 'fatutu']],
+  [30, "HP Loss - Core", "HP Loss, Support Core", ['semmelweis', 'rubuska']],
+  [31, "Shield - Core", "Shield, Support Core", ['j', 'msnewbabel']],
+  [32, "Heal - Core", "Heal, Support Core", ['kakania', 'fatutu']],
+  [33, "Dynamo - Core", "Dynamo, Support Core", ['ulrich', 'charon']],
+  [34, "Upgrade - Core", "Upgrade, Support Core", ['mercuria', 'argus']],
+  [35, "Ultimate - Core", "Ultimate, Support Core", ['lopera', 'melania']],
+  [36, "Petrify - Core", "Control, Support Core", ['druvisiii', 'hissabeth']],
+  [37, "Burn - Core", "Burn, Support Core", ['isolde', 'marsha']],
+  [38, "Moxie - Core", "Moxie, Support Core", ['recoleta', 'melania']],
+];
+defaultTeams.push(...dbTeamsRaw.map(([num, title, niche, ids]) => ({
+  id: 'pw-team-' + num,
+  name: title,
+  desc: `Niche: ${niche} (prydwen.gg Teams Database #${num})`,
+  slots: ids.map(cid => ({ label: 'Member', options: [cid] })),
+})));
+
 function ensureShape(s) {
   s.characters = (s.characters || []).map(c => ({
     afflatus: '', afflatusCustom: false, role: '', roleCustom: false, specialty: '', specialtyCustom: false,
@@ -534,6 +621,7 @@ function ensureShape(s) {
     ...c,
   }));
   s.teams = (s.teams || []).map(t => ({ desc: '', rotation: '', ...t }));
+  s.removedDefaultTeamIds = s.removedDefaultTeamIds || [];
   return s;
 }
 
@@ -556,6 +644,15 @@ function migrateReferenceData(s) {
     if (def.specialty && !cur.specialtyCustom) cur.specialty = def.specialty;
     if (def.damageType && !cur.damageTypeCustom) cur.damageType = def.damageType;
     if (def.psychubes) cur.psychubes = JSON.parse(JSON.stringify(def.psychubes));
+  });
+
+  // Merge in any default team not already present and not previously removed by the user
+  // (so newly-added site teams reach existing saves, but deleting a team actually sticks).
+  const existingTeamIds = new Set(s.teams.map(t => t.id));
+  defaultTeams.forEach(def => {
+    if (existingTeamIds.has(def.id)) return;
+    if (s.removedDefaultTeamIds.includes(def.id)) return;
+    s.teams.push(JSON.parse(JSON.stringify(def)));
   });
   return s;
 }
@@ -903,7 +1000,12 @@ function renderTeams() {
   });
   grid.querySelectorAll('[data-removeteam]').forEach(el => el.addEventListener('click', () => {
     if (!confirm('Remove this team?')) return;
-    state.teams = state.teams.filter(t => t.id !== el.dataset.removeteam);
+    const removedId = el.dataset.removeteam;
+    state.teams = state.teams.filter(t => t.id !== removedId);
+    // Track default teams removed on purpose so future syncs don't resurrect them.
+    if (defaultTeams.some(d => d.id === removedId) && !state.removedDefaultTeamIds.includes(removedId)) {
+      state.removedDefaultTeamIds.push(removedId);
+    }
     saveState(); renderTeams();
   }));
 }
