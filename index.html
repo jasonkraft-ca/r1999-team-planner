@@ -79,6 +79,42 @@
   .src-tag.shop { background: rgba(92,156,106,.18); color: var(--green); }
   .src-tag.event { background: rgba(106,138,176,.18); color: var(--blue); }
 
+  /* Archetype filter panel */
+  .archetype-panel {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 5px;
+    padding: 12px 16px; margin-bottom: 18px;
+  }
+  .archetype-panel summary {
+    cursor: pointer; color: var(--gold); font-size: 12px; letter-spacing: .5px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .archetype-panel summary .count { color: var(--text-dim); text-transform: none; letter-spacing: 0; }
+  .archetype-panel summary .clear-archetypes {
+    margin-left: auto; color: var(--text-dim); text-transform: none; letter-spacing: 0; cursor: pointer; font-size: 11px;
+  }
+  .archetype-panel summary .clear-archetypes:hover { color: var(--red); }
+  .archetype-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px;
+    margin-top: 12px;
+  }
+  .archetype-chip {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text); font-family: inherit; font-size: 13px; text-align: left;
+    padding: 10px 12px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+  }
+  .archetype-chip:hover { border-color: var(--gold-dim); }
+  .archetype-chip .diamond { color: var(--text-dim); font-size: 13px; flex-shrink: 0; }
+  .archetype-chip.selected { border-color: var(--gold); background: rgba(201,162,75,.10); }
+  .archetype-chip.selected .diamond { color: var(--gold); }
+  .archetype-chip .achip-count { margin-left: auto; color: var(--text-dim); font-size: 11px; }
+
+  .dmg-toggle { display: flex; gap: 4px; }
+  .dmg-toggle button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text-dim);
+    font-family: inherit; font-size: 12px; padding: 7px 12px; cursor: pointer; border-radius: 3px;
+  }
+  .dmg-toggle button.active { color: var(--gold); border-color: var(--gold-dim); background: var(--panel-2); }
+
   .roster-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
   .char-card {
     background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
@@ -120,6 +156,9 @@
   .af-none { color: var(--text-dim); }
   .specialty-badge { background: rgba(201,162,75,.10); color: var(--gold); border: 1px solid var(--gold-dim); }
   .specialty-badge.empty { background: none; color: var(--text-dim); border-color: var(--border); }
+  .dmg-badge { font-size: 11px; padding: 2px 9px; border-radius: 10px; letter-spacing: .3px; border: 1px solid var(--border); }
+  .dmg-Mental { color: #b57ac0; border-color: #5a3a60; }
+  .dmg-Reality { color: #c98f6a; border-color: #6a4a3a; }
 
   .psychube-block { border-top: 1px solid #2a241d; padding-top: 8px; }
   .psychube-block > .pb-title {
@@ -249,12 +288,23 @@
       <input type="text" id="rosterSearch" placeholder="Search name, specialty, or psychube...">
       <select id="afflatusFilter"></select>
       <select id="roleFilter"></select>
+      <div class="dmg-toggle" id="dmgToggle">
+        <button data-dmg="">Any DMG</button>
+        <button data-dmg="Mental">Mental</button>
+        <button data-dmg="Reality">Reality</button>
+      </div>
       <span class="spacer"></span>
       <span class="stat-line" id="rosterStat"></span>
       <button class="gbtn subtle" id="exportBtn">Export</button>
       <button class="gbtn subtle" id="importBtn">Import</button>
       <input type="file" id="importFile" accept="application/json" style="display:none">
     </div>
+
+    <details class="archetype-panel">
+      <summary>Archetype <span class="count" id="archetypeCount"></span><span class="clear-archetypes" id="clearArchetypes">clear</span></summary>
+      <div class="archetype-grid" id="archetypeGrid"></div>
+    </details>
+
     <div class="roster-toolbar">
       <input type="text" id="newCharInput" placeholder="Add a character (e.g. Regulus)">
       <button class="gbtn" id="addCharBtn">Add</button>
@@ -296,125 +346,125 @@ const ROLE_LIST = ['DPS', 'Sub-DPS', 'Support', 'Sustain'];
 
 // psychube entry: { n: name, r: reason, s: source-tag ('sig'|'shop'|'event') }
 const defaultCharacters = [
-  { id: 'jessica', name: 'Jessica', owned: true, euphoria: true, note: 'Poison sub-DPS/support', afflatus: 'Plant', role: 'Sub-DPS', specialty: 'Poison, AP+', insight: '', psychubes: [
+  { id: 'jessica', name: 'Jessica', owned: true, euphoria: true, note: 'Poison sub-DPS/support', afflatus: 'Plant', role: 'Sub-DPS', specialty: 'Poison, AP+', damageType: 'Reality', insight: '', psychubes: [
     { n: 'Blasphemer of Night', r: 'Her original BiS; applies easily since Poison is a Neg Status', s: 'shop' },
     { n: 'Falling for a Sweet Phenomenon', r: 'Overtakes it at Euphoria 2 — stacks Genesis DMG off her follow-ups', s: 'shop' },
     { n: 'Her Mournful Face', r: 'Budget: flat +40% Poison DMG', s: 'shop' },
   ] },
-  { id: 'enigma', name: 'Enigma', owned: true, euphoria: true, note: 'Bastion support (SS)', afflatus: 'Intellect', role: 'Support', specialty: 'Dynamo, Bastion, Cleanse', insight: '', psychubes: [
+  { id: 'enigma', name: 'Enigma', owned: true, euphoria: true, note: 'Bastion support (SS)', afflatus: 'Intellect', role: 'Support', specialty: 'Dynamo, Bastion, Cleanse', damageType: 'Reality', insight: '', psychubes: [
     { n: "The Riddle's Limit", r: 'Signature — DMG reduction on Bastion + team DMG Dealt buff', s: 'sig' },
     { n: 'Luxurious Leisure', r: 'Generic ATK/Ult support fallback to strengthen his Bastion', s: 'shop' },
   ] },
-  { id: 'ulrich', name: 'Ulrich', owned: true, euphoria: true, note: '', afflatus: 'Intellect', role: 'Sub-DPS', specialty: 'Dynamo, EA', insight: '', psychubes: [
+  { id: 'ulrich', name: 'Ulrich', owned: true, euphoria: true, note: '', afflatus: 'Intellect', role: 'Sub-DPS', specialty: 'Dynamo, EA', damageType: 'Reality', insight: '', psychubes: [
     { n: 'On the Hand of Time', r: 'Better than his sig if you have crit support — always-on PEN + Crit DMG', s: 'event' },
     { n: 'A Tingle of a Thought', r: 'Signature — ATK, Crit Rate, Crit DMG for his Ult-focused kit', s: 'sig' },
     { n: 'Luxurious Leisure', r: 'Ult-focused fallback', s: 'shop' },
   ] },
-  { id: 'isolde', name: 'Isolde', owned: true, euphoria: true, note: 'Burn sub-DPS', afflatus: 'Spirit', role: 'Sub-DPS', specialty: 'Glow, Buff, AP+', insight: '', psychubes: [
+  { id: 'isolde', name: 'Isolde', owned: true, euphoria: true, note: 'Burn sub-DPS', afflatus: 'Spirit', role: 'Sub-DPS', specialty: 'Glow, Buff, AP+', damageType: 'Reality', insight: '', psychubes: [
     { n: 'Knock on the Door', r: 'Signature — Crit Rate + bonus damage to Burned enemies', s: 'sig' },
     { n: 'Blasphemer of Night', r: 'Easy to trigger since Burn is a Neg Status', s: 'shop' },
     { n: 'Luxurious Leisure', r: 'Ult-damage fallback', s: 'shop' },
   ] },
-  { id: 'toothfairy', name: 'Tooth Fairy', owned: true, euphoria: true, note: 'AP-efficient sustain/CC', afflatus: 'Star', role: 'Sustain', specialty: 'Impromptu, Debuff', insight: '', psychubes: [
+  { id: 'toothfairy', name: 'Tooth Fairy', owned: true, euphoria: true, note: 'AP-efficient sustain/CC', afflatus: 'Star', role: 'Sustain', specialty: 'Impromptu, Debuff', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Beyond Wonderland', r: 'Signature — HP + Healing Bonus + Crit Rate keeps her cleanse-on-crit reliable', s: 'sig' },
     { n: 'Dawn Is Coming', r: 'Extra healing throughput option', s: 'event' },
     { n: 'Laughter and Laughter', r: 'Budget 5★ heal staple', s: 'shop' },
   ] },
-  { id: 'ramona', name: 'Ramona', owned: true, euphoria: true, note: 'Poison main carry', afflatus: 'Plant', role: 'DPS', specialty: 'Poison, EA, Rewrite', insight: '', psychubes: [
+  { id: 'ramona', name: 'Ramona', owned: true, euphoria: true, note: 'Poison main carry', afflatus: 'Plant', role: 'DPS', specialty: 'Poison, EA, Rewrite', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Falling for a Sweet Phenomenon', r: 'BiS — stacks Genesis DMG fast off her frequent Extra Actions', s: 'shop' },
     { n: 'Drown Out the Hustle', r: 'Signature — strong Genesis + Poison DMG, but stacks slower than the 5★', s: 'sig' },
     { n: 'Blasphemer of Night', r: 'Budget Neg-Status/ATK option', s: 'shop' },
   ] },
-  { id: 'paperheron', name: 'Paper Heron', owned: true, euphoria: true, note: '', afflatus: 'Plant', role: 'Support', specialty: 'Impromptu, Plant, Array', insight: '', psychubes: [
+  { id: 'paperheron', name: 'Paper Heron', owned: true, euphoria: true, note: '', afflatus: 'Plant', role: 'Support', specialty: 'Impromptu, Plant, Array', damageType: 'Reality', insight: '', psychubes: [
     { n: 'Wayfarer of the Dao', r: 'Signature, clear BiS — team DMG per Eureka consumed + Incantation Might on array', s: 'sig' },
     { n: 'Addio Coda', r: 'Fallback — party DMG + Inspiration on Eureka consumption', s: 'sig' },
     { n: 'Brave New World', r: 'Cheap Ult/Incantation Might staple', s: 'shop' },
   ] },
-  { id: 'brume', name: 'Brume', owned: true, euphoria: true, note: 'Electric Field sub-carry', afflatus: 'Beast', role: 'Sub-DPS', specialty: 'Dynamo, EA', insight: '', psychubes: [
+  { id: 'brume', name: 'Brume', owned: true, euphoria: true, note: 'Electric Field sub-carry', afflatus: 'Beast', role: 'Sub-DPS', specialty: 'Dynamo, EA', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Her Willful Leap', r: 'Signature — team DMG on Beast-Channel casts + Ult Might on Extra Actions', s: 'sig' },
     { n: 'On the Hand of Time', r: 'Most of her damage is FUAs — PEN Rate + Crit DMG', s: 'event' },
     { n: 'Luxurious Leisure', r: 'Ult Might + DMG bonus alternative', s: 'shop' },
   ] },
-  { id: 'beryl', name: 'Beryl', owned: true, euphoria: true, note: 'Halo DPS (S+)', afflatus: 'Intellect', role: 'DPS', specialty: 'Glow, EA', insight: '', psychubes: [
+  { id: 'beryl', name: 'Beryl', owned: true, euphoria: true, note: 'Halo DPS (S+)', afflatus: 'Intellect', role: 'DPS', specialty: 'Glow, EA', damageType: 'Mental', insight: '', psychubes: [
     { n: 'The Thousandfold Fate', r: 'Signature BiS — Crit DMG scales with accumulated Lingering Glow stacks', s: 'sig' },
     { n: 'Long Night Talk', r: '~95% of signature performance', s: 'event' },
     { n: 'Knock on the Door', r: '~90% of signature performance', s: 'sig' },
   ] },
-  { id: 'charon', name: 'Charon', owned: true, euphoria: true, note: 'Top-tier healer/support', afflatus: 'Plant', role: 'Support', specialty: 'Dynamo, AP+, Shuffle', insight: '', psychubes: [
+  { id: 'charon', name: 'Charon', owned: true, euphoria: true, note: 'Top-tier healer/support', afflatus: 'Spirit', role: 'Support', specialty: 'Dynamo, AP+, Shuffle', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Buds Yet to Bloom', r: 'Signature BiS — Crit Rate, DMG Dealt, team-wide Crit DMG buff', s: 'sig' },
     { n: 'On the Hand of Time', r: 'Crit DMG + PEN alternative', s: 'event' },
     { n: 'Brave New World', r: 'Cheap Incantation Might staple', s: 'shop' },
   ] },
-  { id: 'marsha', name: 'Marsha', owned: true, euphoria: true, note: 'Sustain/tank', afflatus: 'Beast', role: 'Sustain', specialty: 'Shield, Cleanse, Glow', insight: '', psychubes: [
+  { id: 'marsha', name: 'Marsha', owned: true, euphoria: true, note: 'Sustain/tank', afflatus: 'Beast', role: 'Sustain', specialty: 'Shield, Cleanse, Glow', damageType: 'Reality', insight: '', psychubes: [
     { n: 'Singleness of Heart', r: 'Signature — DMG reduction + team Crit DMG when Lingering Glow is high', s: 'sig' },
     { n: 'Beyond Wonderland', r: 'HP + Crit Rate support alternative', s: 'sig' },
   ] },
-  { id: 'kiperina', name: 'Kiperina', owned: true, euphoria: true, note: 'Mental dmg + shields', afflatus: 'Star', role: 'Sustain', specialty: 'Impromptu, Shield, Cleanse', insight: '', psychubes: [
+  { id: 'kiperina', name: 'Kiperina', owned: true, euphoria: true, note: 'Mental dmg + shields', afflatus: 'Star', role: 'Sustain', specialty: 'Impromptu, Shield, Cleanse', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Aurora After Winter', r: 'Signature — stacking ATK on cast + party Crit Rate off Eureka consumption', s: 'sig' },
     { n: 'Long Night Talk', r: 'Strong alt if maxed, esp. without Regulus', s: 'event' },
     { n: 'Brave New World', r: 'Cheap support staple', s: 'shop' },
   ] },
-  { id: 'fatutu', name: 'Fatutu', owned: true, euphoria: true, note: 'Sustain via FUA heals', afflatus: 'Mineral', role: 'Sustain', specialty: 'Cleanse, EA', insight: '', psychubes: [
+  { id: 'fatutu', name: 'Fatutu', owned: true, euphoria: true, note: 'Sustain via FUA heals', afflatus: 'Mineral', role: 'Sustain', specialty: 'Cleanse, EA', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Cracks in the Shell', r: 'Signature BiS — Healing Bonus + party Crit DMG buff', s: 'sig' },
     { n: 'The Wandering Improviser', r: 'Healing Bonus + HP; her dmg-sharing stacks allied Ult Might', s: 'event' },
     { n: 'That Inquisitive Dear', r: '6★ heal psychube, reliable substitute', s: 'sig' },
   ] },
-  { id: 'barcarola', name: 'Barcarola', owned: true, euphoria: true, note: 'Eureka sub-DPS/buffer', afflatus: 'Star', role: 'Sub-DPS', specialty: 'Impromptu, Star', insight: '', psychubes: [
+  { id: 'barcarola', name: 'Barcarola', owned: true, euphoria: true, note: 'Eureka sub-DPS/buffer', afflatus: 'Star', role: 'Sub-DPS', specialty: 'Impromptu, Star', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Addio Coda', r: 'Signature BiS — party DMG, +2 Impromptu instances, Crit Rate', s: 'sig' },
     { n: 'For Rehabilitation', r: 'Crit Rate + Incantation Might + DMG bonus', s: 'event' },
     { n: 'Thunderous Applause', r: 'Crit DMG, though only on her own attacks', s: 'shop' },
   ] },
-  { id: 'flutterpage', name: 'Flutterpage', owned: true, euphoria: true, note: 'Aleph substitute (Eureka)', afflatus: 'Star', role: 'Support', specialty: 'EA, Buff, Shuffle', insight: '', psychubes: [
+  { id: 'flutterpage', name: 'Flutterpage', owned: true, euphoria: true, note: 'Aleph substitute (Eureka)', afflatus: 'Star', role: 'Support', specialty: 'EA, Buff, Shuffle', damageType: 'Reality', insight: '', psychubes: [
     { n: 'On the Hand of Time', r: 'Her signature — PEN Rate + stacking Crit DMG (often better on your FUA DPS)', s: 'sig' },
     { n: 'Aurora After Winter', r: 'Recommended when the sig is given to the DPS instead', s: 'sig' },
     { n: 'Same Old Story', r: 'FUA damage + Incantation Might backup', s: 'event' },
   ] },
-  { id: 'anjonala', name: 'Anjo Nala', owned: true, euphoria: true, note: 'Flexible support/sub-DPS', afflatus: 'Beast', role: 'Support', specialty: 'Ult, EA, Flex', insight: '', psychubes: [
+  { id: 'anjonala', name: 'Anjo Nala', owned: true, euphoria: true, note: 'Flexible support/sub-DPS', afflatus: 'Beast', role: 'Support', specialty: 'Ult, EA, Flex', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Transcendent Love', r: 'Signature — ATK, Crit Rate/DMG, DMG Dealt for her and her bound ally', s: 'sig' },
     { n: 'On the Hand of Time', r: 'Excellent for her frequent FUAs — PEN + Crit DMG', s: 'event' },
     { n: 'Same Old Story', r: 'Incantation Might + DMG Dealt backup', s: 'event' },
   ] },
-  { id: 'tuesday', name: 'Tuesday', owned: true, euphoria: true, note: 'Poison array core', afflatus: 'Spirit', role: 'Support', specialty: 'Poison, Array', insight: '', psychubes: [
+  { id: 'tuesday', name: 'Tuesday', owned: true, euphoria: true, note: 'Poison array core', afflatus: 'Spirit', role: 'Support', specialty: 'Poison, Array', damageType: 'Mental', insight: '', psychubes: [
     { n: 'And the Maid Says', r: 'Signature — +Poison DMG for all allies plus extra for Tuesday', s: 'sig' },
     { n: 'Never-Ending Q&A', r: 'ATK + Crit DMG (her Poison can crit)', s: 'event' },
     { n: 'Blasphemer of Night', r: 'Budget Neg-Status option', s: 'shop' },
   ] },
-  { id: 'semmelweis', name: 'Semmelweis', owned: true, euphoria: true, note: 'HP-drain buffer', afflatus: 'Mineral', role: 'Support', specialty: 'Bloodtithe, Array', insight: '', psychubes: [
+  { id: 'semmelweis', name: 'Semmelweis', owned: true, euphoria: true, note: 'HP-drain buffer', afflatus: 'Mineral', role: 'Support', specialty: 'Bloodtithe, Array', damageType: 'Reality', insight: '', psychubes: [
     { n: 'The Third Commitment', r: 'Best after Euphoria — Array potency + 16% HP for Bloodtithe sustain', s: 'event' },
     { n: 'From the Depths', r: 'Signature — grants Echoes of Life + Incantation Might', s: 'sig' },
     { n: 'Brave New World', r: 'Cheap Incantation Might staple', s: 'shop' },
   ] },
-  { id: 'kakania', name: 'Kakania', owned: true, euphoria: true, note: 'Best general healer', afflatus: 'Plant', role: 'Sustain', specialty: 'AP+', insight: '', psychubes: [
+  { id: 'kakania', name: 'Kakania', owned: true, euphoria: true, note: 'Best general healer', afflatus: 'Plant', role: 'Sustain', specialty: 'AP+', damageType: 'Mental', insight: '', psychubes: [
     { n: "The Fighter's Best Wishes", r: 'Signature — HP, DMG Taken Reduction, Genesis DMG buff', s: 'sig' },
     { n: 'Beyond Wonderland', r: 'HP + Crit Rate alternative', s: 'sig' },
     { n: 'Dawn is Coming', r: 'Adds some healing to her sustain', s: 'event' },
   ] },
-  { id: 'melania', name: 'Melania', owned: true, euphoria: true, note: 'Ult-support (Recoleta BiS partner)', afflatus: 'Star', role: 'Support', specialty: 'Ult, Buff', insight: '', psychubes: [
+  { id: 'melania', name: 'Melania', owned: true, euphoria: true, note: 'Ult-support (Recoleta BiS partner)', afflatus: 'Beast', role: 'Support', specialty: 'Ult, Buff', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Luxurious Leisure', r: 'Standard go-to pre/post-Euphoria — Ult Might + DMG bonus', s: 'shop' },
     { n: 'One with the Flow', r: 'BiS specifically for her Euphoria form', s: 'event' },
     { n: 'The Carat of a Heart', r: 'Easy to activate via Passion Drain for Ult Might', s: 'event' },
   ] },
-  { id: 'voyager', name: 'Voyager', owned: true, euphoria: true, note: 'Eureka support', afflatus: 'Star', role: 'Support', specialty: 'Impromptu, Control', insight: '', psychubes: [
+  { id: 'voyager', name: 'Voyager', owned: true, euphoria: true, note: 'Eureka support', afflatus: 'Star', role: 'Support', specialty: 'Impromptu, Control', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Yearning Desire', r: 'Commonly cited best — bonus DMG vs debuffed enemies + Incantation Might', s: 'shop' },
     { n: 'Luxurious Leisure', r: '6★ Ult Might option', s: 'shop' },
     { n: 'Blasphemer of Night', r: 'Stronger on full debuff-stack teams but harder to use', s: 'shop' },
   ] },
-  { id: 'medicinepocket', name: 'Medicine Pocket', owned: true, euphoria: true, note: 'Sustain (needs Euphoria for full value)', afflatus: 'Beast', role: 'Sustain', specialty: 'Debuff', insight: '', psychubes: [
+  { id: 'medicinepocket', name: 'Medicine Pocket', owned: true, euphoria: true, note: 'Sustain (needs Euphoria for full value)', afflatus: 'Beast', role: 'Sustain', specialty: 'Debuff', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Decode', r: 'Preferred for healing output — up to +15% Healing Done', s: 'event' },
     { n: 'That Inquisitive Dear', r: 'The 6★ heal psychube — +18% Healing Done', s: 'sig' },
     { n: 'Laughter and Laughter', r: '5★ budget healer alternative', s: 'shop' },
   ] },
-  { id: 'noire', name: 'Noire', owned: true, euphoria: true, note: 'Neg Status DPS', afflatus: 'Plant', role: 'DPS', specialty: 'Ult, Debuff', insight: '', psychubes: [
+  { id: 'noire', name: 'Noire', owned: true, euphoria: true, note: 'Neg Status DPS', afflatus: 'Plant', role: 'DPS', specialty: 'Ult, Debuff', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Rehearsal of Dreams', r: 'Signature, by far her best — huge Ult Might + DMG Dealt', s: 'sig' },
     { n: 'Another Story', r: 'Ult Might + DMG Dealt if you cast high-rank incantations', s: 'event' },
     { n: 'Brave New World', r: 'F2P — buy unlimited copies in the Fragment Shop', s: 'shop' },
   ] },
-  { id: 'willow', name: 'Willow', owned: true, euphoria: true, note: 'Poison sub-carry (post-Euphoria)', afflatus: 'Plant', role: 'Sub-DPS', specialty: 'Poison, Moxie', insight: '', psychubes: [
+  { id: 'willow', name: 'Willow', owned: true, euphoria: true, note: 'Poison sub-carry (post-Euphoria)', afflatus: 'Plant', role: 'Sub-DPS', specialty: 'Poison, Moxie', damageType: 'Mental', insight: '', psychubes: [
     { n: 'Offbeat Strides', r: 'Signature — best overall in long fights; ramps Moxie/Poison/Genesis', s: 'sig' },
     { n: 'Her Mournful Face', r: 'Better in SHORT fights — flat +40% Poison DMG, no ramp needed', s: 'shop' },
     { n: 'Silent and Adoring', r: 'ATK% + stacks damage when her Channel ends', s: 'shop' },
   ] },
-  { id: 'recoleta', name: 'Recoleta', owned: false, euphoria: false, note: 'Ult-burst carry — pairs with Melania', afflatus: 'Mineral', role: 'DPS', specialty: 'Ult, Moxie', insight: '', psychubes: [
+  { id: 'recoleta', name: 'Recoleta', owned: false, euphoria: false, note: 'Ult-burst carry — pairs with Melania', afflatus: 'Mineral', role: 'DPS', specialty: 'Ult, Moxie', damageType: 'Reality', insight: '', psychubes: [
     { n: 'The Final Roll', r: 'Signature BiS — up to +24% Ult Might and +32% Crit DMG', s: 'sig' },
     { n: 'Rehearsal of Dreams', r: 'Ult Might fallback without the crit', s: 'sig' },
     { n: 'Another Story', r: 'Ult Might + DMG Dealt fallback', s: 'event' },
@@ -479,7 +529,8 @@ const defaultTeams = [
 
 function ensureShape(s) {
   s.characters = (s.characters || []).map(c => ({
-    afflatus: '', role: '', specialty: '', specialtyCustom: false, psychube: '', insight: '', note: '', euphoria: false, owned: false, psychubes: [],
+    afflatus: '', afflatusCustom: false, role: '', roleCustom: false, specialty: '', specialtyCustom: false,
+    damageType: '', damageTypeCustom: false, psychube: '', insight: '', note: '', euphoria: false, owned: false, psychubes: [],
     ...c,
   }));
   s.teams = (s.teams || []).map(t => ({ desc: '', rotation: '', ...t }));
@@ -496,13 +547,14 @@ function migrateReferenceData(s) {
       s.characters.push(JSON.parse(JSON.stringify(def)));
       return;
     }
-    if (!cur.afflatus && def.afflatus) cur.afflatus = def.afflatus;
-    if (!cur.role && def.role) cur.role = def.role;
-    // Specialty/psychubes are reference data we research and correct over time, so always
-    // resync from defaults unless the user has explicitly typed their own value in-app
-    // (tracked via *Custom flags, set by the roster edit fields). Custom characters
-    // (not in defaults) always keep whatever they already have.
+    // Afflatus/role/specialty/damageType/psychubes are reference data we research and correct
+    // over time, so always resync from defaults unless the user has explicitly edited that
+    // field in-app (tracked via *Custom flags, set by the roster edit handlers). Custom
+    // characters (not in defaults) always keep whatever they already have.
+    if (def.afflatus && !cur.afflatusCustom) cur.afflatus = def.afflatus;
+    if (def.role && !cur.roleCustom) cur.role = def.role;
     if (def.specialty && !cur.specialtyCustom) cur.specialty = def.specialty;
+    if (def.damageType && !cur.damageTypeCustom) cur.damageType = def.damageType;
     if (def.psychubes) cur.psychubes = JSON.parse(JSON.stringify(def.psychubes));
   });
   return s;
@@ -519,7 +571,8 @@ function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
 let state = loadState();
 saveState(); // persist any migration backfill immediately
-let rosterFilters = { search: '', afflatus: '', role: '' };
+let rosterFilters = { search: '', afflatus: '', role: '', damageType: '', archetypes: new Set() };
+function specialtyTags(c) { return (c.specialty || '').split(',').map(t => t.trim()).filter(Boolean); }
 let teamBuilder = { slots: [] };
 
 function getChar(id) { return state.characters.find(c => c.id === id); }
@@ -578,6 +631,12 @@ function renderRoster() {
       if (rosterFilters.role === 'Unknown') { if (c.role) return false; }
       else if (c.role !== rosterFilters.role) return false;
     }
+    if (rosterFilters.damageType && c.damageType !== rosterFilters.damageType) return false;
+    if (rosterFilters.archetypes.size > 0) {
+      const tags = specialtyTags(c);
+      const hasAny = [...rosterFilters.archetypes].some(a => tags.includes(a));
+      if (!hasAny) return false;
+    }
     return true;
   });
 
@@ -589,6 +648,9 @@ function renderRoster() {
     const specialtyBadge = c.specialty
       ? `<span class="specialty-badge">${esc(c.specialty)}</span>`
       : `<span class="specialty-badge empty">no specialty set</span>`;
+    const dmgBadge = c.damageType
+      ? `<span class="dmg-badge dmg-${c.damageType}">${esc(c.damageType)}</span>`
+      : '';
 
     const pbHtml = (c.psychubes && c.psychubes.length)
       ? `<div class="psychube-block">
@@ -619,6 +681,7 @@ function renderRoster() {
       </div>
       <div class="badge-row">
         <span class="afflatus-badge ${afClass}">${esc(c.afflatus) || 'Afflatus?'}</span>
+        ${dmgBadge}
         ${specialtyBadge}
       </div>
       ${pbHtml}
@@ -666,10 +729,14 @@ function renderRoster() {
     area.classList.toggle('open');
   }));
   grid.querySelectorAll('[data-afflatus]').forEach(el => el.addEventListener('change', () => {
-    getChar(el.dataset.afflatus).afflatus = el.value; saveState(); renderRoster();
+    const c = getChar(el.dataset.afflatus);
+    c.afflatus = el.value; c.afflatusCustom = true;
+    saveState(); renderRoster();
   }));
   grid.querySelectorAll('[data-role]').forEach(el => el.addEventListener('change', () => {
-    getChar(el.dataset.role).role = el.value; saveState();
+    const c = getChar(el.dataset.role);
+    c.role = el.value; c.roleCustom = true;
+    saveState();
   }));
   grid.querySelectorAll('[data-specialty]').forEach(el => el.addEventListener('input', () => {
     const c = getChar(el.dataset.specialty);
@@ -680,11 +747,53 @@ function renderRoster() {
   grid.querySelectorAll('[data-insight]').forEach(el => el.addEventListener('input', () => {
     getChar(el.dataset.insight).insight = el.value; saveState();
   }));
+
+  renderArchetypePanel();
+  renderDmgToggle();
+}
+
+function renderArchetypePanel() {
+  const grid = document.getElementById('archetypeGrid');
+  const counts = {};
+  state.characters.forEach(c => specialtyTags(c).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+  const tags = Object.keys(counts).sort((a, b) => a.localeCompare(b));
+
+  grid.innerHTML = tags.map(t => `
+    <button class="archetype-chip ${rosterFilters.archetypes.has(t) ? 'selected' : ''}" data-archetype="${esc(t)}">
+      <span class="diamond">&#9671;</span> ${esc(t)}
+      <span class="achip-count">${counts[t]}</span>
+    </button>
+  `).join('');
+
+  grid.querySelectorAll('[data-archetype]').forEach(btn => btn.addEventListener('click', () => {
+    const tag = btn.dataset.archetype;
+    if (rosterFilters.archetypes.has(tag)) rosterFilters.archetypes.delete(tag);
+    else rosterFilters.archetypes.add(tag);
+    renderRoster();
+  }));
+
+  const countEl = document.getElementById('archetypeCount');
+  countEl.textContent = rosterFilters.archetypes.size > 0 ? `(${rosterFilters.archetypes.size} selected)` : '';
+}
+
+function renderDmgToggle() {
+  document.querySelectorAll('#dmgToggle [data-dmg]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.dmg === rosterFilters.damageType);
+  });
 }
 
 document.getElementById('rosterSearch').addEventListener('input', e => { rosterFilters.search = e.target.value; renderRoster(); });
 document.getElementById('afflatusFilter').addEventListener('change', e => { rosterFilters.afflatus = e.target.value; renderRoster(); });
 document.getElementById('roleFilter').addEventListener('change', e => { rosterFilters.role = e.target.value; renderRoster(); });
+document.querySelectorAll('#dmgToggle [data-dmg]').forEach(btn => btn.addEventListener('click', () => {
+  rosterFilters.damageType = btn.dataset.dmg;
+  renderRoster();
+}));
+document.getElementById('clearArchetypes').addEventListener('click', e => {
+  e.preventDefault();
+  rosterFilters.archetypes.clear();
+  renderRoster();
+});
 
 document.getElementById('addCharBtn').addEventListener('click', () => {
   const input = document.getElementById('newCharInput');
