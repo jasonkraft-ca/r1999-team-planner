@@ -317,6 +317,24 @@
       <h4>Wishlist — who to pull next</h4>
       <div id="wishlistContent"></div>
     </div>
+
+    <div class="roster-toolbar">
+      <input type="text" id="teamSearch" placeholder="Search team name, niche, or member...">
+      <div class="dmg-toggle" id="statusToggle">
+        <button data-status="">All</button>
+        <button data-status="ready">Ready</button>
+        <button data-status="partial">Partial</button>
+        <button data-status="missing">Missing</button>
+      </div>
+      <span class="spacer"></span>
+      <span class="stat-line" id="teamStat"></span>
+    </div>
+
+    <details class="archetype-panel">
+      <summary>Niche <span class="count" id="nicheCount"></span><span class="clear-archetypes" id="clearNiches">clear</span></summary>
+      <div class="archetype-grid" id="nicheGrid"></div>
+    </details>
+
     <div class="team-grid" id="teamGrid"></div>
     <div class="add-panel">
       <h4>Build a new team</h4>
@@ -509,7 +527,7 @@ const defaultCharacters = [
 
 const defaultTeams = [
   {
-    id: 'core', name: 'The Core',
+    id: 'core', name: 'The Core', niche: 'Glow, Dynamo',
     desc: 'Premier general-purpose comp. Beryl drives Halo/Thermoelectric stacking, Charon keeps Dynamo/Moxie flowing, Anjo Nala binds a teammate and amps the whole team. Handles nearly all content with minimal setup.',
     rotation: 'Open with Charon to build Dynamo, let Anjo Nala bind Beryl for the damage buff, then loop Beryl\'s skills to stack Halo before ulting. Low execution — good default team.',
     slots: [
@@ -520,7 +538,7 @@ const defaultTeams = [
     ],
   },
   {
-    id: 'poison', name: 'Poison Team',
+    id: 'poison', name: 'Poison Team', niche: 'Poison',
     desc: 'Ramona resolves Poison stacks repeatedly, Tuesday keeps Poison sticking via her Array, Willow (Euphoria) converts stacks into Hag\'s Bane as sub-carry instead of competing for AP.',
     rotation: 'Tuesday and Willow are both AP-negative — stagger their turns so you\'re never dry. Let Tuesday\'s Array apply first, Ramona detonates stacks for burst, Willow layers Hag\'s Bane on top. Sustain covers you through the AP-starved rounds.',
     slots: [
@@ -531,7 +549,7 @@ const defaultTeams = [
     ],
   },
   {
-    id: 'eureka', name: 'Impromptu Incantation (Eureka)',
+    id: 'eureka', name: 'Impromptu Incantation (Eureka)', niche: 'Inspiration',
     desc: 'Voyager + Barcarola generate/spend Eureka stacks; Flutterpage substitutes for Aleph as the AP-generating support.',
     rotation: 'Build Eureka with Barcarola/Voyager\'s basics before dumping it into their Ults. Flutterpage consumes Eureka to hand out extra AP — time her turn right before your carry needs to burst.',
     slots: [
@@ -542,7 +560,7 @@ const defaultTeams = [
     ],
   },
   {
-    id: 'negstatus', name: 'Noire / Neg Status',
+    id: 'negstatus', name: 'Noire / Neg Status', niche: 'Debuff, Ultimate',
     desc: 'Anjo Nala boosts Noire\'s Ultimate damage and applies the Neg Status she needs to recast it.',
     rotation: 'Anjo Nala binds Noire first, then keep Noire recasting her Ult off the Neg Status Anjo Nala feeds her. Sustain just needs to keep pace.',
     slots: [
@@ -552,7 +570,7 @@ const defaultTeams = [
     ],
   },
   {
-    id: 'recoleta', name: 'Recoleta Ult-Burst',
+    id: 'recoleta', name: 'Recoleta Ult-Burst', niche: 'Ultimate, Moxie',
     desc: 'Aspirational — needs Recoleta. Melania is her only perfect partner, feeding 72% Ultimate Might and a Crit buff into Recoleta\'s bursts.',
     rotation: 'Recoleta and Melania split AP to upkeep Passion Drain and stack Fixed Plan on the team, then unload with Recoleta\'s Ult for the burst window.',
     slots: [
@@ -610,6 +628,7 @@ const dbTeamsRaw = [
 defaultTeams.push(...dbTeamsRaw.map(([num, title, niche, ids]) => ({
   id: 'pw-team-' + num,
   name: title,
+  niche,
   desc: `Niche: ${niche} (prydwen.gg Teams Database #${num})`,
   slots: ids.map(cid => ({ label: 'Member', options: [cid] })),
 })));
@@ -620,7 +639,7 @@ function ensureShape(s) {
     damageType: '', damageTypeCustom: false, psychube: '', insight: '', note: '', euphoria: false, owned: false, psychubes: [],
     ...c,
   }));
-  s.teams = (s.teams || []).map(t => ({ desc: '', rotation: '', ...t }));
+  s.teams = (s.teams || []).map(t => ({ desc: '', rotation: '', niche: '', ...t }));
   s.removedDefaultTeamIds = s.removedDefaultTeamIds || [];
   return s;
 }
@@ -648,11 +667,16 @@ function migrateReferenceData(s) {
 
   // Merge in any default team not already present and not previously removed by the user
   // (so newly-added site teams reach existing saves, but deleting a team actually sticks).
-  const existingTeamIds = new Set(s.teams.map(t => t.id));
+  const teamsById = Object.fromEntries(s.teams.map(t => [t.id, t]));
   defaultTeams.forEach(def => {
-    if (existingTeamIds.has(def.id)) return;
-    if (s.removedDefaultTeamIds.includes(def.id)) return;
-    s.teams.push(JSON.parse(JSON.stringify(def)));
+    const curTeam = teamsById[def.id];
+    if (!curTeam) {
+      if (s.removedDefaultTeamIds.includes(def.id)) return;
+      s.teams.push(JSON.parse(JSON.stringify(def)));
+      return;
+    }
+    // niche is reference data (not user-editable), so keep it synced on existing teams too.
+    if (def.niche && !curTeam.niche) curTeam.niche = def.niche;
   });
   return s;
 }
@@ -670,6 +694,8 @@ let state = loadState();
 saveState(); // persist any migration backfill immediately
 let rosterFilters = { search: '', afflatus: '', role: '', damageType: '', archetypes: new Set() };
 function specialtyTags(c) { return (c.specialty || '').split(',').map(t => t.trim()).filter(Boolean); }
+function teamNicheTags(t) { return (t.niche || '').split(',').map(n => n.trim()).filter(Boolean); }
+let teamFilters = { search: '', status: '', niches: new Set() };
 let teamBuilder = { slots: [] };
 
 function getChar(id) { return state.characters.find(c => c.id === id); }
@@ -892,6 +918,17 @@ document.getElementById('clearArchetypes').addEventListener('click', e => {
   renderRoster();
 });
 
+document.getElementById('teamSearch').addEventListener('input', e => { teamFilters.search = e.target.value; renderTeams(); });
+document.querySelectorAll('#statusToggle [data-status]').forEach(btn => btn.addEventListener('click', () => {
+  teamFilters.status = btn.dataset.status;
+  renderTeams();
+}));
+document.getElementById('clearNiches').addEventListener('click', e => {
+  e.preventDefault();
+  teamFilters.niches.clear();
+  renderTeams();
+});
+
 document.getElementById('addCharBtn').addEventListener('click', () => {
   const input = document.getElementById('newCharInput');
   const name = input.value.trim();
@@ -966,12 +1003,32 @@ function renderTeams() {
   renderWishlist();
   const grid = document.getElementById('teamGrid');
   grid.innerHTML = '';
-  state.teams.forEach(team => {
+
+  const computed = state.teams.map(team => {
     const evals = team.slots.map(evaluateSlot);
     const okCount = evals.filter(e => e.status === 'ok').length;
     let status = 'missing';
     if (okCount === team.slots.length) status = 'ready';
     else if (okCount > 0) status = 'partial';
+    return { team, evals, status };
+  });
+
+  const filtered = computed.filter(({ team, status }) => {
+    if (teamFilters.status && status !== teamFilters.status) return false;
+    if (teamFilters.niches.size > 0) {
+      const tags = teamNicheTags(team);
+      if (![...teamFilters.niches].some(n => tags.includes(n))) return false;
+    }
+    if (teamFilters.search) {
+      const q = teamFilters.search.toLowerCase();
+      const memberNames = team.slots.flatMap(s => s.options.map(id => getChar(id)?.name || id)).join(' ');
+      const haystack = `${team.name} ${team.niche || ''} ${team.desc || ''} ${memberNames}`.toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  filtered.forEach(({ team, evals, status }) => {
     const card = document.createElement('div');
     card.className = `team-card ${status}`;
     const slotsHtml = team.slots.map((slot, i) => {
@@ -1008,6 +1065,39 @@ function renderTeams() {
     }
     saveState(); renderTeams();
   }));
+
+  document.getElementById('teamStat').textContent = `${filtered.length} shown · ${state.teams.length} total`;
+  renderNichePanel();
+  renderStatusToggle();
+}
+
+function renderNichePanel() {
+  const grid = document.getElementById('nicheGrid');
+  const counts = {};
+  state.teams.forEach(t => teamNicheTags(t).forEach(n => { counts[n] = (counts[n] || 0) + 1; }));
+  const niches = Object.keys(counts).sort((a, b) => a.localeCompare(b));
+
+  grid.innerHTML = niches.map(n => `
+    <button class="archetype-chip ${teamFilters.niches.has(n) ? 'selected' : ''}" data-niche="${esc(n)}">
+      <span class="diamond">&#9671;</span> ${esc(n)}
+      <span class="achip-count">${counts[n]}</span>
+    </button>
+  `).join('');
+
+  grid.querySelectorAll('[data-niche]').forEach(btn => btn.addEventListener('click', () => {
+    const n = btn.dataset.niche;
+    if (teamFilters.niches.has(n)) teamFilters.niches.delete(n);
+    else teamFilters.niches.add(n);
+    renderTeams();
+  }));
+
+  document.getElementById('nicheCount').textContent = teamFilters.niches.size > 0 ? `(${teamFilters.niches.size} selected)` : '';
+}
+
+function renderStatusToggle() {
+  document.querySelectorAll('#statusToggle [data-status]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.status === teamFilters.status);
+  });
 }
 
 function renderBuilder() {
