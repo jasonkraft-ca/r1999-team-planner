@@ -296,125 +296,125 @@ const ROLE_LIST = ['DPS', 'Sub-DPS', 'Support', 'Sustain'];
 
 // psychube entry: { n: name, r: reason, s: source-tag ('sig'|'shop'|'event') }
 const defaultCharacters = [
-  { id: 'jessica', name: 'Jessica', owned: true, euphoria: true, note: 'Poison sub-DPS/support', afflatus: 'Plant', role: 'Sub-DPS', specialty: 'Poison DPS', insight: '', psychubes: [
+  { id: 'jessica', name: 'Jessica', owned: true, euphoria: true, note: 'Poison sub-DPS/support', afflatus: 'Plant', role: 'Sub-DPS', specialty: 'Poison, AP+', insight: '', psychubes: [
     { n: 'Blasphemer of Night', r: 'Her original BiS; applies easily since Poison is a Neg Status', s: 'shop' },
     { n: 'Falling for a Sweet Phenomenon', r: 'Overtakes it at Euphoria 2 — stacks Genesis DMG off her follow-ups', s: 'shop' },
     { n: 'Her Mournful Face', r: 'Budget: flat +40% Poison DMG', s: 'shop' },
   ] },
-  { id: 'enigma', name: 'Enigma', owned: true, euphoria: true, note: 'Bastion support (SS)', afflatus: 'Intellect', role: 'Support', specialty: 'Dynamo Support/Sustain', insight: '', psychubes: [
+  { id: 'enigma', name: 'Enigma', owned: true, euphoria: true, note: 'Bastion support (SS)', afflatus: 'Intellect', role: 'Support', specialty: 'Dynamo, Bastion, Cleanse', insight: '', psychubes: [
     { n: "The Riddle's Limit", r: 'Signature — DMG reduction on Bastion + team DMG Dealt buff', s: 'sig' },
     { n: 'Luxurious Leisure', r: 'Generic ATK/Ult support fallback to strengthen his Bastion', s: 'shop' },
   ] },
-  { id: 'ulrich', name: 'Ulrich', owned: true, euphoria: true, note: '', afflatus: 'Intellect', role: 'Sub-DPS', specialty: 'Reality DMG Enabler', insight: '', psychubes: [
+  { id: 'ulrich', name: 'Ulrich', owned: true, euphoria: true, note: '', afflatus: 'Intellect', role: 'Sub-DPS', specialty: 'Dynamo, EA', insight: '', psychubes: [
     { n: 'On the Hand of Time', r: 'Better than his sig if you have crit support — always-on PEN + Crit DMG', s: 'event' },
     { n: 'A Tingle of a Thought', r: 'Signature — ATK, Crit Rate, Crit DMG for his Ult-focused kit', s: 'sig' },
     { n: 'Luxurious Leisure', r: 'Ult-focused fallback', s: 'shop' },
   ] },
-  { id: 'isolde', name: 'Isolde', owned: true, euphoria: true, note: 'Burn sub-DPS', afflatus: 'Spirit', role: 'Sub-DPS', specialty: 'Burn Debuffer', insight: '', psychubes: [
+  { id: 'isolde', name: 'Isolde', owned: true, euphoria: true, note: 'Burn sub-DPS', afflatus: 'Spirit', role: 'Sub-DPS', specialty: 'Glow, Buff, AP+', insight: '', psychubes: [
     { n: 'Knock on the Door', r: 'Signature — Crit Rate + bonus damage to Burned enemies', s: 'sig' },
     { n: 'Blasphemer of Night', r: 'Easy to trigger since Burn is a Neg Status', s: 'shop' },
     { n: 'Luxurious Leisure', r: 'Ult-damage fallback', s: 'shop' },
   ] },
-  { id: 'toothfairy', name: 'Tooth Fairy', owned: true, euphoria: true, note: 'AP-efficient sustain/CC', afflatus: 'Star', role: 'Sustain', specialty: 'Healer / Crit-Support', insight: '', psychubes: [
+  { id: 'toothfairy', name: 'Tooth Fairy', owned: true, euphoria: true, note: 'AP-efficient sustain/CC', afflatus: 'Star', role: 'Sustain', specialty: 'Impromptu, Debuff', insight: '', psychubes: [
     { n: 'Beyond Wonderland', r: 'Signature — HP + Healing Bonus + Crit Rate keeps her cleanse-on-crit reliable', s: 'sig' },
     { n: 'Dawn Is Coming', r: 'Extra healing throughput option', s: 'event' },
     { n: 'Laughter and Laughter', r: 'Budget 5★ heal staple', s: 'shop' },
   ] },
-  { id: 'ramona', name: 'Ramona', owned: true, euphoria: true, note: 'Poison main carry', afflatus: 'Plant', role: 'DPS', specialty: 'Poison DPS', insight: '', psychubes: [
+  { id: 'ramona', name: 'Ramona', owned: true, euphoria: true, note: 'Poison main carry', afflatus: 'Plant', role: 'DPS', specialty: 'Poison, EA, Rewrite', insight: '', psychubes: [
     { n: 'Falling for a Sweet Phenomenon', r: 'BiS — stacks Genesis DMG fast off her frequent Extra Actions', s: 'shop' },
     { n: 'Drown Out the Hustle', r: 'Signature — strong Genesis + Poison DMG, but stacks slower than the 5★', s: 'sig' },
     { n: 'Blasphemer of Night', r: 'Budget Neg-Status/ATK option', s: 'shop' },
   ] },
-  { id: 'paperheron', name: 'Paper Heron', owned: true, euphoria: true, note: '', afflatus: 'Plant', role: 'Support', specialty: 'Reality DMG AoE / Eureka Support', insight: '', psychubes: [
+  { id: 'paperheron', name: 'Paper Heron', owned: true, euphoria: true, note: '', afflatus: 'Plant', role: 'Support', specialty: 'Impromptu, Plant, Array', insight: '', psychubes: [
     { n: 'Wayfarer of the Dao', r: 'Signature, clear BiS — team DMG per Eureka consumed + Incantation Might on array', s: 'sig' },
     { n: 'Addio Coda', r: 'Fallback — party DMG + Inspiration on Eureka consumption', s: 'sig' },
     { n: 'Brave New World', r: 'Cheap Ult/Incantation Might staple', s: 'shop' },
   ] },
-  { id: 'brume', name: 'Brume', owned: true, euphoria: true, note: 'Electric Field sub-carry', afflatus: 'Beast', role: 'Sub-DPS', specialty: 'Mental DMG DPS', insight: '', psychubes: [
+  { id: 'brume', name: 'Brume', owned: true, euphoria: true, note: 'Electric Field sub-carry', afflatus: 'Beast', role: 'Sub-DPS', specialty: 'Dynamo, EA', insight: '', psychubes: [
     { n: 'Her Willful Leap', r: 'Signature — team DMG on Beast-Channel casts + Ult Might on Extra Actions', s: 'sig' },
     { n: 'On the Hand of Time', r: 'Most of her damage is FUAs — PEN Rate + Crit DMG', s: 'event' },
     { n: 'Luxurious Leisure', r: 'Ult Might + DMG bonus alternative', s: 'shop' },
   ] },
-  { id: 'beryl', name: 'Beryl', owned: true, euphoria: true, note: 'Halo DPS (S+)', afflatus: 'Intellect', role: 'DPS', specialty: 'Mental DMG DPS (Halo)', insight: '', psychubes: [
+  { id: 'beryl', name: 'Beryl', owned: true, euphoria: true, note: 'Halo DPS (S+)', afflatus: 'Intellect', role: 'DPS', specialty: 'Glow, EA', insight: '', psychubes: [
     { n: 'The Thousandfold Fate', r: 'Signature BiS — Crit DMG scales with accumulated Lingering Glow stacks', s: 'sig' },
     { n: 'Long Night Talk', r: '~95% of signature performance', s: 'event' },
     { n: 'Knock on the Door', r: '~90% of signature performance', s: 'sig' },
   ] },
-  { id: 'charon', name: 'Charon', owned: true, euphoria: true, note: 'Top-tier healer/support', afflatus: 'Plant', role: 'Support', specialty: 'Genesis DMG Sub-DPS / Debuffer', insight: '', psychubes: [
+  { id: 'charon', name: 'Charon', owned: true, euphoria: true, note: 'Top-tier healer/support', afflatus: 'Plant', role: 'Support', specialty: 'Dynamo, AP+, Shuffle', insight: '', psychubes: [
     { n: 'Buds Yet to Bloom', r: 'Signature BiS — Crit Rate, DMG Dealt, team-wide Crit DMG buff', s: 'sig' },
     { n: 'On the Hand of Time', r: 'Crit DMG + PEN alternative', s: 'event' },
     { n: 'Brave New World', r: 'Cheap Incantation Might staple', s: 'shop' },
   ] },
-  { id: 'marsha', name: 'Marsha', owned: true, euphoria: true, note: 'Sustain/tank', afflatus: 'Beast', role: 'Sustain', specialty: 'Shield/Sustain', insight: '', psychubes: [
+  { id: 'marsha', name: 'Marsha', owned: true, euphoria: true, note: 'Sustain/tank', afflatus: 'Beast', role: 'Sustain', specialty: 'Shield, Cleanse, Glow', insight: '', psychubes: [
     { n: 'Singleness of Heart', r: 'Signature — DMG reduction + team Crit DMG when Lingering Glow is high', s: 'sig' },
     { n: 'Beyond Wonderland', r: 'HP + Crit Rate support alternative', s: 'sig' },
   ] },
-  { id: 'kiperina', name: 'Kiperina', owned: true, euphoria: true, note: 'Mental dmg + shields', afflatus: 'Star', role: 'Sustain', specialty: 'Shield/Support (Eureka)', insight: '', psychubes: [
+  { id: 'kiperina', name: 'Kiperina', owned: true, euphoria: true, note: 'Mental dmg + shields', afflatus: 'Star', role: 'Sustain', specialty: 'Impromptu, Shield, Cleanse', insight: '', psychubes: [
     { n: 'Aurora After Winter', r: 'Signature — stacking ATK on cast + party Crit Rate off Eureka consumption', s: 'sig' },
     { n: 'Long Night Talk', r: 'Strong alt if maxed, esp. without Regulus', s: 'event' },
     { n: 'Brave New World', r: 'Cheap support staple', s: 'shop' },
   ] },
-  { id: 'fatutu', name: 'Fatutu', owned: true, euphoria: true, note: 'Sustain via FUA heals', afflatus: 'Mineral', role: 'Sustain', specialty: 'Healer', insight: '', psychubes: [
+  { id: 'fatutu', name: 'Fatutu', owned: true, euphoria: true, note: 'Sustain via FUA heals', afflatus: 'Mineral', role: 'Sustain', specialty: 'Cleanse, EA', insight: '', psychubes: [
     { n: 'Cracks in the Shell', r: 'Signature BiS — Healing Bonus + party Crit DMG buff', s: 'sig' },
     { n: 'The Wandering Improviser', r: 'Healing Bonus + HP; her dmg-sharing stacks allied Ult Might', s: 'event' },
     { n: 'That Inquisitive Dear', r: '6★ heal psychube, reliable substitute', s: 'sig' },
   ] },
-  { id: 'barcarola', name: 'Barcarola', owned: true, euphoria: true, note: 'Eureka sub-DPS/buffer', afflatus: 'Star', role: 'Sub-DPS', specialty: 'Mental DMG DPS (Eureka)', insight: '', psychubes: [
+  { id: 'barcarola', name: 'Barcarola', owned: true, euphoria: true, note: 'Eureka sub-DPS/buffer', afflatus: 'Star', role: 'Sub-DPS', specialty: 'Impromptu, Star', insight: '', psychubes: [
     { n: 'Addio Coda', r: 'Signature BiS — party DMG, +2 Impromptu instances, Crit Rate', s: 'sig' },
     { n: 'For Rehabilitation', r: 'Crit Rate + Incantation Might + DMG bonus', s: 'event' },
     { n: 'Thunderous Applause', r: 'Crit DMG, though only on her own attacks', s: 'shop' },
   ] },
-  { id: 'flutterpage', name: 'Flutterpage', owned: true, euphoria: true, note: 'Aleph substitute (Eureka)', afflatus: 'Star', role: 'Support', specialty: 'Buffer / Sub-DPS', insight: '', psychubes: [
+  { id: 'flutterpage', name: 'Flutterpage', owned: true, euphoria: true, note: 'Aleph substitute (Eureka)', afflatus: 'Star', role: 'Support', specialty: 'EA, Buff, Shuffle', insight: '', psychubes: [
     { n: 'On the Hand of Time', r: 'Her signature — PEN Rate + stacking Crit DMG (often better on your FUA DPS)', s: 'sig' },
     { n: 'Aurora After Winter', r: 'Recommended when the sig is given to the DPS instead', s: 'sig' },
     { n: 'Same Old Story', r: 'FUA damage + Incantation Might backup', s: 'event' },
   ] },
-  { id: 'anjonala', name: 'Anjo Nala', owned: true, euphoria: true, note: 'Flexible support/sub-DPS', afflatus: 'Beast', role: 'Support', specialty: 'Mental Burst DPS / Bind', insight: '', psychubes: [
+  { id: 'anjonala', name: 'Anjo Nala', owned: true, euphoria: true, note: 'Flexible support/sub-DPS', afflatus: 'Beast', role: 'Support', specialty: 'Ult, EA, Flex', insight: '', psychubes: [
     { n: 'Transcendent Love', r: 'Signature — ATK, Crit Rate/DMG, DMG Dealt for her and her bound ally', s: 'sig' },
     { n: 'On the Hand of Time', r: 'Excellent for her frequent FUAs — PEN + Crit DMG', s: 'event' },
     { n: 'Same Old Story', r: 'Incantation Might + DMG Dealt backup', s: 'event' },
   ] },
-  { id: 'tuesday', name: 'Tuesday', owned: true, euphoria: true, note: 'Poison array core', afflatus: 'Spirit', role: 'Support', specialty: 'Poison DPS/Support', insight: '', psychubes: [
+  { id: 'tuesday', name: 'Tuesday', owned: true, euphoria: true, note: 'Poison array core', afflatus: 'Spirit', role: 'Support', specialty: 'Poison, Array', insight: '', psychubes: [
     { n: 'And the Maid Says', r: 'Signature — +Poison DMG for all allies plus extra for Tuesday', s: 'sig' },
     { n: 'Never-Ending Q&A', r: 'ATK + Crit DMG (her Poison can crit)', s: 'event' },
     { n: 'Blasphemer of Night', r: 'Budget Neg-Status option', s: 'shop' },
   ] },
-  { id: 'semmelweis', name: 'Semmelweis', owned: true, euphoria: true, note: 'HP-drain buffer', afflatus: 'Mineral', role: 'Support', specialty: 'Support/Buffer (HP-drain)', insight: '', psychubes: [
+  { id: 'semmelweis', name: 'Semmelweis', owned: true, euphoria: true, note: 'HP-drain buffer', afflatus: 'Mineral', role: 'Support', specialty: 'Bloodtithe, Array', insight: '', psychubes: [
     { n: 'The Third Commitment', r: 'Best after Euphoria — Array potency + 16% HP for Bloodtithe sustain', s: 'event' },
     { n: 'From the Depths', r: 'Signature — grants Echoes of Life + Incantation Might', s: 'sig' },
     { n: 'Brave New World', r: 'Cheap Incantation Might staple', s: 'shop' },
   ] },
-  { id: 'kakania', name: 'Kakania', owned: true, euphoria: true, note: 'Best general healer', afflatus: 'Plant', role: 'Sustain', specialty: 'Shield/Sustain (Tank-Support)', insight: '', psychubes: [
+  { id: 'kakania', name: 'Kakania', owned: true, euphoria: true, note: 'Best general healer', afflatus: 'Plant', role: 'Sustain', specialty: 'AP+', insight: '', psychubes: [
     { n: "The Fighter's Best Wishes", r: 'Signature — HP, DMG Taken Reduction, Genesis DMG buff', s: 'sig' },
     { n: 'Beyond Wonderland', r: 'HP + Crit Rate alternative', s: 'sig' },
     { n: 'Dawn is Coming', r: 'Adds some healing to her sustain', s: 'event' },
   ] },
-  { id: 'melania', name: 'Melania', owned: true, euphoria: true, note: 'Ult-support (Recoleta BiS partner)', afflatus: 'Star', role: 'Support', specialty: 'Mental Burst DPS / Ult-Support', insight: '', psychubes: [
+  { id: 'melania', name: 'Melania', owned: true, euphoria: true, note: 'Ult-support (Recoleta BiS partner)', afflatus: 'Star', role: 'Support', specialty: 'Ult, Buff', insight: '', psychubes: [
     { n: 'Luxurious Leisure', r: 'Standard go-to pre/post-Euphoria — Ult Might + DMG bonus', s: 'shop' },
     { n: 'One with the Flow', r: 'BiS specifically for her Euphoria form', s: 'event' },
     { n: 'The Carat of a Heart', r: 'Easy to activate via Passion Drain for Ult Might', s: 'event' },
   ] },
-  { id: 'voyager', name: 'Voyager', owned: true, euphoria: true, note: 'Eureka support', afflatus: 'Star', role: 'Support', specialty: 'Debuffer / Crowd Control', insight: '', psychubes: [
+  { id: 'voyager', name: 'Voyager', owned: true, euphoria: true, note: 'Eureka support', afflatus: 'Star', role: 'Support', specialty: 'Impromptu, Control', insight: '', psychubes: [
     { n: 'Yearning Desire', r: 'Commonly cited best — bonus DMG vs debuffed enemies + Incantation Might', s: 'shop' },
     { n: 'Luxurious Leisure', r: '6★ Ult Might option', s: 'shop' },
     { n: 'Blasphemer of Night', r: 'Stronger on full debuff-stack teams but harder to use', s: 'shop' },
   ] },
-  { id: 'medicinepocket', name: 'Medicine Pocket', owned: true, euphoria: true, note: 'Sustain (needs Euphoria for full value)', afflatus: 'Beast', role: 'Sustain', specialty: 'Healer / Debuffer', insight: '', psychubes: [
+  { id: 'medicinepocket', name: 'Medicine Pocket', owned: true, euphoria: true, note: 'Sustain (needs Euphoria for full value)', afflatus: 'Beast', role: 'Sustain', specialty: 'Debuff', insight: '', psychubes: [
     { n: 'Decode', r: 'Preferred for healing output — up to +15% Healing Done', s: 'event' },
     { n: 'That Inquisitive Dear', r: 'The 6★ heal psychube — +18% Healing Done', s: 'sig' },
     { n: 'Laughter and Laughter', r: '5★ budget healer alternative', s: 'shop' },
   ] },
-  { id: 'noire', name: 'Noire', owned: true, euphoria: true, note: 'Neg Status DPS', afflatus: 'Plant', role: 'DPS', specialty: 'Genesis/Mental Burst DPS', insight: '', psychubes: [
+  { id: 'noire', name: 'Noire', owned: true, euphoria: true, note: 'Neg Status DPS', afflatus: 'Plant', role: 'DPS', specialty: 'Ult, Debuff', insight: '', psychubes: [
     { n: 'Rehearsal of Dreams', r: 'Signature, by far her best — huge Ult Might + DMG Dealt', s: 'sig' },
     { n: 'Another Story', r: 'Ult Might + DMG Dealt if you cast high-rank incantations', s: 'event' },
     { n: 'Brave New World', r: 'F2P — buy unlimited copies in the Fragment Shop', s: 'shop' },
   ] },
-  { id: 'willow', name: 'Willow', owned: true, euphoria: true, note: 'Poison sub-carry (post-Euphoria)', afflatus: 'Plant', role: 'Sub-DPS', specialty: 'Poison DPS', insight: '', psychubes: [
+  { id: 'willow', name: 'Willow', owned: true, euphoria: true, note: 'Poison sub-carry (post-Euphoria)', afflatus: 'Plant', role: 'Sub-DPS', specialty: 'Poison, Moxie', insight: '', psychubes: [
     { n: 'Offbeat Strides', r: 'Signature — best overall in long fights; ramps Moxie/Poison/Genesis', s: 'sig' },
     { n: 'Her Mournful Face', r: 'Better in SHORT fights — flat +40% Poison DMG, no ramp needed', s: 'shop' },
     { n: 'Silent and Adoring', r: 'ATK% + stacks damage when her Channel ends', s: 'shop' },
   ] },
-  { id: 'recoleta', name: 'Recoleta', owned: false, euphoria: false, note: 'Ult-burst carry — pairs with Melania', afflatus: 'Mineral', role: 'DPS', specialty: 'Reality DMG DPS (Ult-Burst)', insight: '', psychubes: [
+  { id: 'recoleta', name: 'Recoleta', owned: false, euphoria: false, note: 'Ult-burst carry — pairs with Melania', afflatus: 'Mineral', role: 'DPS', specialty: 'Ult, Moxie', insight: '', psychubes: [
     { n: 'The Final Roll', r: 'Signature BiS — up to +24% Ult Might and +32% Crit DMG', s: 'sig' },
     { n: 'Rehearsal of Dreams', r: 'Ult Might fallback without the crit', s: 'sig' },
     { n: 'Another Story', r: 'Ult Might + DMG Dealt fallback', s: 'event' },
@@ -479,7 +479,7 @@ const defaultTeams = [
 
 function ensureShape(s) {
   s.characters = (s.characters || []).map(c => ({
-    afflatus: '', role: '', specialty: '', psychube: '', insight: '', note: '', euphoria: false, owned: false, psychubes: [],
+    afflatus: '', role: '', specialty: '', specialtyCustom: false, psychube: '', insight: '', note: '', euphoria: false, owned: false, psychubes: [],
     ...c,
   }));
   s.teams = (s.teams || []).map(t => ({ desc: '', rotation: '', ...t }));
@@ -498,9 +498,11 @@ function migrateReferenceData(s) {
     }
     if (!cur.afflatus && def.afflatus) cur.afflatus = def.afflatus;
     if (!cur.role && def.role) cur.role = def.role;
-    if (!cur.specialty && def.specialty) cur.specialty = def.specialty;
-    // Psychubes are pure reference data (no in-app editing), so always resync from defaults
-    // to pick up name/image corrections. Custom characters (not in defaults) keep their own.
+    // Specialty/psychubes are reference data we research and correct over time, so always
+    // resync from defaults unless the user has explicitly typed their own value in-app
+    // (tracked via *Custom flags, set by the roster edit fields). Custom characters
+    // (not in defaults) always keep whatever they already have.
+    if (def.specialty && !cur.specialtyCustom) cur.specialty = def.specialty;
     if (def.psychubes) cur.psychubes = JSON.parse(JSON.stringify(def.psychubes));
   });
   return s;
@@ -670,7 +672,10 @@ function renderRoster() {
     getChar(el.dataset.role).role = el.value; saveState();
   }));
   grid.querySelectorAll('[data-specialty]').forEach(el => el.addEventListener('input', () => {
-    getChar(el.dataset.specialty).specialty = el.value; saveState();
+    const c = getChar(el.dataset.specialty);
+    c.specialty = el.value;
+    c.specialtyCustom = true; // stop future reference-data syncs from overwriting a manual edit
+    saveState();
   }));
   grid.querySelectorAll('[data-insight]').forEach(el => el.addEventListener('input', () => {
     getChar(el.dataset.insight).insight = el.value; saveState();
