@@ -498,7 +498,7 @@ const defaultCharacters = [
   { id: 'rubuska', name: 'Rubuska', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
   { id: 'regulus', name: 'Regulus', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
   { id: 'aleph', name: 'Aleph', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
-  { id: 'lopera', name: 'Lopera', owned: false, euphoria: false, note: 'Wishlist — S tier, pairs with owned Melania', afflatus: 'Beast', role: 'Support', specialty: 'Bullet, Array, Burn, EA', damageType: 'Reality', insight: '', psychubes: [
+  { id: 'lopera', name: 'Lopera', owned: true, euphoria: false, note: 'S tier — pairs with Melania', afflatus: 'Beast', role: 'Support', specialty: 'Bullet, Array, Burn, EA', damageType: 'Reality', insight: '', psychubes: [
     { n: 'The Third Commitment', r: "Signature — Crit DMG on Bullet trigger, shared to allies via her FUA", s: 'sig' },
     { n: 'Stray Off the Path', r: 'Better for a DPS-oriented build — stacks Crit DMG since all her hits are single-target', s: 'shop' },
     { n: 'Outside the City', r: 'Amplifies buff-stacking over time — good for sustained/long fights', s: 'shop' },
@@ -525,8 +525,16 @@ const defaultCharacters = [
   { id: 'hissabeth', name: 'Hissabeth', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
   { id: 'druvisiii', name: 'Druvis III', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
   { id: 'ezratheodore', name: 'Ezra Theodore', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
-  { id: 'spathodea', name: 'Spathodea', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'spathodea', name: 'Spathodea', owned: true, euphoria: false, note: 'Crit Burn DPS — completes Burn Baby Burn with Lopera', afflatus: 'Beast', role: 'DPS', specialty: 'Burn, Glow, Ult, Burst DMG', damageType: 'Reality', insight: '', psychubes: [
+    { n: 'Long Night Talk', r: 'Top pick — DMG Dealt boost while she holds positive status buffs', s: 'event' },
+    { n: 'Luxurious Leisure', r: 'Ult DMG Dealt, stacks well in long fights', s: 'shop' },
+    { n: 'Tomorrow Also', r: 'Crit Rate after Ult — pairs with her crit-focused kit', s: 'shop' },
+  ] },
   { id: 'mercuria', name: 'Mercuria', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'thetwins', name: 'The Twins', owned: true, euphoria: false, note: 'Portray P1 — game\'s first dual-afflatus unit (Atomic Heart collab)', afflatus: 'Mineral, Star', role: 'DPS', specialty: 'Conduit, Crit', damageType: 'Reality', insight: '', psychubes: [
+    { n: 'The Art of Atoms', r: 'Dual-equip pick #1 — +24% Crit Rate', s: 'event' },
+    { n: 'The Dance of Science', r: 'Dual-equip pick #2 — +18% Crit DMG after attacking', s: 'event' },
+  ] },
 ];
 
 const defaultTeams = [
@@ -652,8 +660,15 @@ function ensureShape(s) {
   }));
   s.teams = (s.teams || []).map(t => ({ desc: '', rotation: '', niche: '', ...t }));
   s.removedDefaultTeamIds = s.removedDefaultTeamIds || [];
+  s.ownedGrantsApplied = s.ownedGrantsApplied || [];
   return s;
 }
+
+// One-time "you now own this character" grants — used when the user tells us they've pulled
+// someone. `owned` is otherwise pure personal state that migration never touches (so manual
+// roster toggles always stick), so this is the one deliberate exception: applied exactly once
+// per id (tracked in ownedGrantsApplied) and never re-applied even if the user un-toggles it later.
+const ONE_TIME_OWNED_GRANTS = ['lopera', 'spathodea', 'thetwins'];
 
 // Backfill reference data (afflatus/specialty/psychubes/role) into older saves that predate these fields,
 // and add any brand-new default characters missing from the save. Never overwrites the user's own edits.
@@ -674,6 +689,13 @@ function migrateReferenceData(s) {
     if (def.specialty && !cur.specialtyCustom) cur.specialty = def.specialty;
     if (def.damageType && !cur.damageTypeCustom) cur.damageType = def.damageType;
     if (def.psychubes) cur.psychubes = JSON.parse(JSON.stringify(def.psychubes));
+  });
+
+  ONE_TIME_OWNED_GRANTS.forEach(id => {
+    if (s.ownedGrantsApplied.includes(id)) return;
+    const c = s.characters.find(ch => ch.id === id);
+    if (c) c.owned = true;
+    s.ownedGrantsApplied.push(id);
   });
 
   // Merge in any default team not already present and not previously removed by the user
