@@ -498,7 +498,11 @@ const defaultCharacters = [
   { id: 'rubuska', name: 'Rubuska', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
   { id: 'regulus', name: 'Regulus', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
   { id: 'aleph', name: 'Aleph', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
-  { id: 'lopera', name: 'Lopera', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
+  { id: 'lopera', name: 'Lopera', owned: false, euphoria: false, note: 'Wishlist — S tier, pairs with owned Melania', afflatus: 'Beast', role: 'Support', specialty: 'Bullet, Array, Burn, EA', damageType: 'Reality', insight: '', psychubes: [
+    { n: 'The Third Commitment', r: "Signature — Crit DMG on Bullet trigger, shared to allies via her FUA", s: 'sig' },
+    { n: 'Stray Off the Path', r: 'Better for a DPS-oriented build — stacks Crit DMG since all her hits are single-target', s: 'shop' },
+    { n: 'Outside the City', r: 'Amplifies buff-stacking over time — good for sustained/long fights', s: 'shop' },
+  ] },
   { id: 'igor', name: 'Igor', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
   { id: 'moldir', name: 'Moldir', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
   { id: 'ezioauditore', name: 'Ezio Auditore', owned: false, euphoria: false, note: '', afflatus: '', role: '', specialty: '', damageType: '', insight: '', psychubes: [] },
@@ -633,6 +637,13 @@ defaultTeams.push(...dbTeamsRaw.map(([num, title, niche, ids]) => ({
   slots: ids.map(cid => ({ label: 'Member', options: [cid] })),
 })));
 
+// Wishlist notes for pulls under consideration — hand-written call-outs layered onto
+// specific site teams so the "why" is visible right on the card, not just the niche tag.
+{
+  const ultCore = defaultTeams.find(t => t.id === 'pw-team-35');
+  if (ultCore) ultCore.rotation = "Wishlist: pulling Lopera completes this instantly — you already own Melania. Lopera's Bullet/FUA kit shares Crit DMG with allies, feeding straight into Melania's Ult-focused burst.";
+}
+
 function ensureShape(s) {
   s.characters = (s.characters || []).map(c => ({
     afflatus: '', afflatusCustom: false, role: '', roleCustom: false, specialty: '', specialtyCustom: false,
@@ -675,8 +686,9 @@ function migrateReferenceData(s) {
       s.teams.push(JSON.parse(JSON.stringify(def)));
       return;
     }
-    // niche is reference data (not user-editable), so keep it synced on existing teams too.
+    // niche/rotation are reference data (not user-editable), so keep them synced on existing teams too.
     if (def.niche && !curTeam.niche) curTeam.niche = def.niche;
+    if (def.rotation && !curTeam.rotation) curTeam.rotation = def.rotation;
   });
   return s;
 }
